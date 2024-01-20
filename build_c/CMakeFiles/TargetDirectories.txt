@@ -1,4 +1,0 @@
-/home/liuyunqi/ymyu/libhwmath/build_c/CMakeFiles/mul.dir
-/home/liuyunqi/ymyu/libhwmath/build_c/CMakeFiles/test.dir
-/home/liuyunqi/ymyu/libhwmath/build_c/CMakeFiles/edit_cache.dir
-/home/liuyunqi/ymyu/libhwmath/build_c/CMakeFiles/rebuild_cache.dir
