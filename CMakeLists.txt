@@ -67,3 +67,5 @@ if(TEST_PARA)
         add_test(NAME PARA_${case} COMMAND mul ${PARA_RND_MODE} ${PARA_CONNER} TEST_RTL TEST_MONTE)
     endforeach(case ${CASES_P})
 endif(TEST_PARA)
+
+
