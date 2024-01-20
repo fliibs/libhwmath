@@ -1,0 +1,100 @@
+0 
+34
++itf+/home/liuyunqi/software/vcs_2016/linux64/lib/vcsdp.tab
++memcbk
++v2k
++vcsd
++vpi
+-Mamsrun=
+-Masflags=
+-Mcc=gcc-4.8
+-Mcfl= -pipe -fPIC -O -I/home/liuyunqi/software/vcs_2016/include
+-Mcplusplus=g++-4.8
+-Mcrt0=
+-Mcrtn=
+-Mcsrc=
+-Mexternalobj=
+-Mldflags= -Wl,--no-as-needed -rdynamic
+-Mobjects= /home/liuyunqi/software/vcs_2016/linux64/lib/libvirsim.so /home/liuyunqi/software/vcs_2016/linux64/lib/liberrorinf.so /home/liuyunqi/software/vcs_2016/linux64/lib/libsnpsmalloc.so
+-Mout=simv
+-Msaverestoreobj=/home/liuyunqi/software/vcs_2016/linux64/lib/vcs_save_restore_new.o
+-Msyslibs=-ldl
+-Mvcsaceobjs=
+-Mxcflags= -pipe -fPIC -I/home/liuyunqi/software/vcs_2016/include
+-Xpiyushb1=0x80
+-debug_access+all+dmptf+bc
+-debug_region=cell+lib
+-f ../src/rtl/mul/filelist.f
+-full64
+-full64
+-gen_obj
+-l
+-override_timescale=1ns/100ps
+-picarchive
+-sverilog
+/home/liuyunqi/software/vcs_2016/linux64/bin/vcs1
+compile.log
+49
+sysc_uni_pwd=/home/liuyunqi/ymyu/libhwmath/build_sv
+http_proxy=http://127.0.0.1:51081
+XDG_RUNTIME_DIR=/run/user/1000/
+XDG_DATA_DIRS=/usr/local/share:/usr/share:/var/lib/snapd/desktop
+WSL_PAC_URL=http://127.0.0.1:51081/myss.pac
+WSL_INTEROP=/run/WSL/1133206_interop
+WSL_DISTRO_NAME=Ubuntu-22.04
+WSLENV=
+WSL2_GUI_APPS_ENABLED=1
+WAYLAND_DISPLAY=wayland-0
+VMR_MODE_FLAG=64
+VERDI_HOME=/home/liuyunqi/software/verdi_2016
+VCS_MX_HOME_INTERNAL=1
+VCS_MODE_FLAG=64
+VCS_LOG_FILE=compile.log
+VCS_HOME=/home/liuyunqi/software/vcs_2016
+VCS_DEPTH=0
+VCS_ARG_ADDED_FOR_TMP=1
+VCS_ARCH_OVERRIDE=linux
+VCS_ARCH=linux64
+UNAME=/bin/uname
+TOOL_HOME=/home/liuyunqi/software/vcs_2016/linux64
+SYNOPSYS=/home/liuyunqi/software/dc_2016
+SPYGLASS_HOME=/home/liuyunqi/software/spyglass_2016/SpyGlass-L2016.06/SPYGLASS_HOME/
+SCRNAME=vcs
+SCRIPT_NAME=vcs
+PULSE_SERVER=unix:/mnt/wslg/PulseServer
+PT_HOME=/home/liuyunqi/software/pt_2016_sp1
+OVA_UUM=0
+NOVAS_HOME=/home/liuyunqi/software/verdi_2016
+NAME=YunqiLaptop
+MODULES_CMD=/usr/lib/x86_64-linux-gnu/modulecmd.tcl
+MODULESHOME=/usr/share/modules
+MODULEPATH=/etc/environment-modules/modules:/usr/share/modules/versions:/usr/share/modules/$MODULE_VERSION/modulefiles:/usr/share/modules/modulefiles
+LOADEDMODULES=
+LESSOPEN=| /usr/bin/lesspipe %s
+LESSCLOSE=/usr/bin/lesspipe %s %s
+LC_ALL=C
+HTTP_PROXY=http://127.0.0.1:51081
+HOSTTYPE=x86_64
+FM_HOME=/home/liuyunqi/software/formality_2015
+DC_HOME=/home/liuyunqi/software/dc_2016
+DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+BOOST_ROOT=/home/liuyunqi/ymyu/boost_test/boost_1_84_0
+BOOST_LIB=/usr/local/lib
+BOOST_INCLUDE=/usr/local/include/boost
+BASH_FUNC_module%%=() {  _module_raw "$@" 2>&1_}
+BASH_FUNC_ml%%=() {  module ml "$@"_}
+BASH_FUNC__module_raw%%=() {  eval `/usr/bin/tclsh8.6 /usr/lib/x86_64-linux-gnu/modulecmd.tcl bash "$@"`;_ _mlstatus=$?;_ return $_mlstatus_}
+0
+6
+1705643657 ../src/rtl/mul/mul_mask.sv
+1705734359 ../src/rtl/mul/mul_tb.sv
+1705643657 ../src/rtl/mul/mul_lod.sv
+1705742113 ../src/rtl/mul/mul_para.sv
+1705644329 ../src/rtl/mul/filelist.f
+1464145466 /home/liuyunqi/software/vcs_2016/linux64/lib/vcsdp.tab
+4
+0 
+1464147802 /home/liuyunqi/software/vcs_2016/linux64/lib/libvirsim.so
+1464147272 /home/liuyunqi/software/vcs_2016/linux64/lib/liberrorinf.so
+1464147248 /home/liuyunqi/software/vcs_2016/linux64/lib/libsnpsmalloc.so
+1705742165 simv.daidir

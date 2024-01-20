@@ -1,0 +1,43 @@
+{
+    "Modules": {
+        "...MASTER...": {},
+        "std": {
+            "Compiled": "Yes",
+            "Compiled Times": 13
+        },
+        "mul_tb": {
+            "Compiled": "Yes",
+            "Compiled Times": 13
+        }
+    },
+    "CompUnits": {
+        "EBsvs_d": {
+            "mod": "mul_tb",
+            "out": "EBsvs_d.o",
+            "bytes": 93530,
+            "checksum": 0,
+            "mode": 4,
+            "archive": "archive.12/_1224570_archive_1.a"
+        }
+    },
+    "ObjArchives": [
+        {
+            "archive": "archive.12/_1224570_archive_1.a",
+            "objects": [
+                [
+                    "EBsvs_d.o",
+                    93530
+                ]
+            ],
+            "size": 93530
+        }
+    ],
+    "reusePaths": {
+        "amcQw_d": {
+            "icPath": "csrc"
+        },
+        "reYIK_d": {
+            "icPath": "csrc"
+        }
+    }
+}

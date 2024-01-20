@@ -1,0 +1,538 @@
+Start testing: Jan 20 17:21 CST
+----------------------------------------------------------
+38/40 Testing: RTL_MODEL_TEST_RND_NEG_TEST_ZERO_INF
+38/40 Test: RTL_MODEL_TEST_RND_NEG_TEST_ZERO_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEG" "TEST_ZERO_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEG_TEST_ZERO_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test negative::
+-------test zero times inf-----
+zero times inf pass!
+Time Test_end: Sat Jan 20 17:22:18 2024
+
+<end of output>
+Test time =  20.57 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEG_TEST_ZERO_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEG_TEST_ZERO_INF" time elapsed: 00:00:20
+----------------------------------------------------------
+
+23/40 Testing: RTL_MODEL_TEST_RND_NEAREST_TEST_ZERO_INF
+23/40 Test: RTL_MODEL_TEST_RND_NEAREST_TEST_ZERO_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEAREST" "TEST_ZERO_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEAREST_TEST_ZERO_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test nearest::
+-------test zero times inf-----
+zero times inf pass!
+
+Time Test_end: Sat Jan 20 17:22:18 2024
+
+<end of output>
+Test time =  20.64 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEAREST_TEST_ZERO_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEAREST_TEST_ZERO_INF" time elapsed: 00:00:20
+----------------------------------------------------------
+
+33/40 Testing: RTL_MODEL_TEST_RND_POS_TEST_ZERO_INF
+33/40 Test: RTL_MODEL_TEST_RND_POS_TEST_ZERO_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_POS" "TEST_ZERO_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_POS_TEST_ZERO_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test positive::
+-------test zero times inf-----
+zero times inf pass!
+
+Time Test_end: Sat Jan 20 17:22:18 2024
+
+<end of output>
+Test time =  20.66 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_POS_TEST_ZERO_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_POS_TEST_ZERO_INF" time elapsed: 00:00:20
+----------------------------------------------------------
+
+28/40 Testing: RTL_MODEL_TEST_RND_ZERO_TEST_ZERO_INF
+28/40 Test: RTL_MODEL_TEST_RND_ZERO_TEST_ZERO_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_ZERO" "TEST_ZERO_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_ZERO_TEST_ZERO_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test zero::
+-------test zero times inf-----
+zero times inf pass!
+
+Time Test_end: Sat Jan 20 17:22:18 2024
+
+<end of output>
+Test time =  20.69 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_ZERO_TEST_ZERO_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_ZERO_TEST_ZERO_INF" time elapsed: 00:00:20
+----------------------------------------------------------
+
+25/40 Testing: RTL_MODEL_TEST_RND_NEAREST_TEST_REG
+25/40 Test: RTL_MODEL_TEST_RND_NEAREST_TEST_REG
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEAREST" "TEST_REG" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEAREST_TEST_REG" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test nearest::
+-------test regular mul -----
+regular mul test pass!
+
+Time Test_end: Sat Jan 20 17:22:27 2024
+
+<end of output>
+Test time =  29.39 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEAREST_TEST_REG" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEAREST_TEST_REG" time elapsed: 00:00:29
+----------------------------------------------------------
+
+35/40 Testing: RTL_MODEL_TEST_RND_POS_TEST_REG
+35/40 Test: RTL_MODEL_TEST_RND_POS_TEST_REG
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_POS" "TEST_REG" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_POS_TEST_REG" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test positive::
+-------test regular mul -----
+regular mul test pass!
+
+Time Test_end: Sat Jan 20 17:22:27 2024
+
+<end of output>
+Test time =  29.67 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_POS_TEST_REG" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_POS_TEST_REG" time elapsed: 00:00:29
+----------------------------------------------------------
+
+30/40 Testing: RTL_MODEL_TEST_RND_ZERO_TEST_REG
+30/40 Test: RTL_MODEL_TEST_RND_ZERO_TEST_REG
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_ZERO" "TEST_REG" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_ZERO_TEST_REG" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test zero::
+-------test regular mul -----
+regular mul test pass!
+
+Time Test_end: Sat Jan 20 17:22:27 2024
+
+<end of output>
+Test time =  29.82 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_ZERO_TEST_REG" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_ZERO_TEST_REG" time elapsed: 00:00:29
+----------------------------------------------------------
+
+40/40 Testing: RTL_MODEL_TEST_RND_NEG_TEST_REG
+40/40 Test: RTL_MODEL_TEST_RND_NEG_TEST_REG
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEG" "TEST_REG" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEG_TEST_REG" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test negative::
+-------test regular mul -----
+regular mul test pass!
+Time Test_end: Sat Jan 20 17:22:28 2024
+
+<end of output>
+Test time =  30.56 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEG_TEST_REG" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEG_TEST_REG" time elapsed: 00:00:30
+----------------------------------------------------------
+
+31/40 Testing: RTL_MODEL_TEST_RND_POS_TEST_ONE
+31/40 Test: RTL_MODEL_TEST_RND_POS_TEST_ONE
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_POS" "TEST_ONE" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_POS_TEST_ONE" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test positive::
+-------test zeros times any regular num-----
+zero times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:36 2024
+
+<end of output>
+Test time =  38.79 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_POS_TEST_ONE" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_POS_TEST_ONE" time elapsed: 00:00:38
+----------------------------------------------------------
+
+26/40 Testing: RTL_MODEL_TEST_RND_ZERO_TEST_ONE
+26/40 Test: RTL_MODEL_TEST_RND_ZERO_TEST_ONE
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_ZERO" "TEST_ONE" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_ZERO_TEST_ONE" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test zero::
+-------test zeros times any regular num-----
+zero times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:37 2024
+
+<end of output>
+Test time =  39.59 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_ZERO_TEST_ONE" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_ZERO_TEST_ONE" time elapsed: 00:00:39
+----------------------------------------------------------
+
+21/40 Testing: RTL_MODEL_TEST_RND_NEAREST_TEST_ONE
+21/40 Test: RTL_MODEL_TEST_RND_NEAREST_TEST_ONE
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEAREST" "TEST_ONE" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEAREST_TEST_ONE" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test nearest::
+-------test zeros times any regular num-----
+zero times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:37 2024
+
+<end of output>
+Test time =  39.65 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEAREST_TEST_ONE" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEAREST_TEST_ONE" time elapsed: 00:00:39
+----------------------------------------------------------
+
+22/40 Testing: RTL_MODEL_TEST_RND_NEAREST_TEST_INF
+22/40 Test: RTL_MODEL_TEST_RND_NEAREST_TEST_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEAREST" "TEST_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEAREST_TEST_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test nearest::
+-------test inf times any regular num-----
+inf times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:38 2024
+
+<end of output>
+Test time =  40.67 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEAREST_TEST_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEAREST_TEST_INF" time elapsed: 00:00:40
+----------------------------------------------------------
+
+37/40 Testing: RTL_MODEL_TEST_RND_NEG_TEST_INF
+37/40 Test: RTL_MODEL_TEST_RND_NEG_TEST_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEG" "TEST_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEG_TEST_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test negative::
+-------test inf times any regular num-----
+inf times any regular pass!
+Time Test_end: Sat Jan 20 17:22:38 2024
+
+<end of output>
+Test time =  40.70 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEG_TEST_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEG_TEST_INF" time elapsed: 00:00:40
+----------------------------------------------------------
+
+36/40 Testing: RTL_MODEL_TEST_RND_NEG_TEST_ONE
+36/40 Test: RTL_MODEL_TEST_RND_NEG_TEST_ONE
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEG" "TEST_ONE" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEG_TEST_ONE" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test negative::
+-------test zeros times any regular num-----
+zero times any regular pass!
+Time Test_end: Sat Jan 20 17:22:38 2024
+
+<end of output>
+Test time =  40.74 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEG_TEST_ONE" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEG_TEST_ONE" time elapsed: 00:00:40
+----------------------------------------------------------
+
+32/40 Testing: RTL_MODEL_TEST_RND_POS_TEST_INF
+32/40 Test: RTL_MODEL_TEST_RND_POS_TEST_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_POS" "TEST_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_POS_TEST_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test positive::
+-------test inf times any regular num-----
+inf times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:39 2024
+
+<end of output>
+Test time =  41.65 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_POS_TEST_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_POS_TEST_INF" time elapsed: 00:00:41
+----------------------------------------------------------
+
+27/40 Testing: RTL_MODEL_TEST_RND_ZERO_TEST_INF
+27/40 Test: RTL_MODEL_TEST_RND_ZERO_TEST_INF
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_ZERO" "TEST_INF" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_ZERO_TEST_INF" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test zero::
+-------test inf times any regular num-----
+inf times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:40 2024
+
+<end of output>
+Test time =  42.46 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_ZERO_TEST_INF" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_ZERO_TEST_INF" time elapsed: 00:00:42
+----------------------------------------------------------
+
+34/40 Testing: RTL_MODEL_TEST_RND_POS_TEST_1_NAN
+34/40 Test: RTL_MODEL_TEST_RND_POS_TEST_1_NAN
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_POS" "TEST_1_NAN" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_POS_TEST_1_NAN" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test positive::
+-------test nan times any regular num-----
+nan times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:40 2024
+
+<end of output>
+Test time =  42.60 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_POS_TEST_1_NAN" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_POS_TEST_1_NAN" time elapsed: 00:00:42
+----------------------------------------------------------
+
+24/40 Testing: RTL_MODEL_TEST_RND_NEAREST_TEST_1_NAN
+24/40 Test: RTL_MODEL_TEST_RND_NEAREST_TEST_1_NAN
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEAREST" "TEST_1_NAN" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEAREST_TEST_1_NAN" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test nearest::
+-------test nan times any regular num-----
+nan times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:41 2024
+
+<end of output>
+Test time =  43.46 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEAREST_TEST_1_NAN" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEAREST_TEST_1_NAN" time elapsed: 00:00:43
+----------------------------------------------------------
+
+39/40 Testing: RTL_MODEL_TEST_RND_NEG_TEST_1_NAN
+39/40 Test: RTL_MODEL_TEST_RND_NEG_TEST_1_NAN
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_NEG" "TEST_1_NAN" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_NEG_TEST_1_NAN" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test negative::
+-------test nan times any regular num-----
+nan times any regular pass!
+Time Test_end: Sat Jan 20 17:22:41 2024
+
+<end of output>
+Test time =  43.70 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_NEG_TEST_1_NAN" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_NEG_TEST_1_NAN" time elapsed: 00:00:43
+----------------------------------------------------------
+
+29/40 Testing: RTL_MODEL_TEST_RND_ZERO_TEST_1_NAN
+29/40 Test: RTL_MODEL_TEST_RND_ZERO_TEST_1_NAN
+Command: "/home/liuyunqi/ymyu/libhwmath/build_c/mul" "TEST_RND_ZERO" "TEST_1_NAN" "TEST_RTL" "TEST_MONTE"
+Directory: /home/liuyunqi/ymyu/libhwmath/build_c
+"RTL_MODEL_TEST_RND_ZERO_TEST_1_NAN" start time: Jan 20 17:21 CST
+Output:
+----------------------------------------------------------
+Time cpp start: Sat Jan 20 17:21:58 2024
+
+Time simv start: Sat Jan 20 17:21:58 2024
+
+/home/liuyunqi/ymyu/libhwmath/build_sv/simv -q
+test_monte is 1
+test zero::
+-------test nan times any regular num-----
+nan times any regular pass!
+
+Time Test_end: Sat Jan 20 17:22:42 2024
+
+<end of output>
+Test time =  43.88 sec
+----------------------------------------------------------
+Test Passed.
+"RTL_MODEL_TEST_RND_ZERO_TEST_1_NAN" end time: Jan 20 17:22 CST
+"RTL_MODEL_TEST_RND_ZERO_TEST_1_NAN" time elapsed: 00:00:43
+----------------------------------------------------------
+
+End testing: Jan 20 17:22 CST

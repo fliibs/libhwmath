@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/mul.dir/src/test/fp32.cpp.o CMakeFiles/mul.dir/src/test/main.cpp.o CMakeFiles/mul.dir/src/test/test.cpp.o -o mul 
