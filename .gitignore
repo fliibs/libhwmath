@@ -38,3 +38,5 @@ CMakeFiles
 cmake_install.cmake
 CTestTestfile.cmake
 Testing
+
+.vscode
