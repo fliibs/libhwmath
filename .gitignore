@@ -40,3 +40,4 @@ CTestTestfile.cmake
 Testing
 
 .vscode
+makefile

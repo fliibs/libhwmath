@@ -15,45 +15,38 @@
 #include <boost/utility.hpp>
 #include <boost/process.hpp>
 #include <sstream>
-
+#include "test.h"
+#include <chrono>
+#include <unistd.h>
+#include <unordered_map>
 using namespace std;
 namespace bp = boost::process;
 uint32_t round_mode=0;                                                        //0:zero 1:negative 2:positive 3:nearest                        
 
-
-#ifndef test_times
-    #define test_times 10
+#ifndef TEST_TIMES
+    #define TEST_TIMES 0
 #endif
 
-#ifndef special_test_time
-    #define special_test_time 10
-#endif
-
-#ifndef TEST_MONTE
-    #define TEST_MONTE 0
-#endif
-
-#ifndef DEBUG_ENABLE
-    #define DEBUG_ENABLE 0
-#endif
-
-#ifndef TEST_BUG
-    #define TEST_BUG 0
-#endif
-
-#ifndef DEBUG_SV
-    #define DEBUG_SV 0
-#endif
-
-#ifdef DEBUG_SV
-    bp::opstream to_sv;
-    bp::ipstream from_sv;
-    bp::child mul_sv("./simv",bp::std_in < to_sv,bp::std_out > from_sv);
-    std::string line;
+#ifndef SPECIAL_TEST_TIMES
+    #define SPECIAL_TEST_TIMES 0
 #endif
 
 class Tester {
 public:
+    bp::opstream to_sv  ;
+    bp::ipstream from_sv;
+    std::string line    ;
+    bp::child mul_sv    ;
+    bool test_one       ;
+    bool test_inf       ;
+    bool test_zero_inf  ;
+    bool test_1_nan     ;
+    bool test_2_nan     ;
+    bool test_reg       ;
+    bool test_rtl       ;      
+    bool test_bug       ;
+    Tester(const std::string& executable) : mul_sv(executable, bp::std_in < to_sv, bp::std_out > from_sv){
+    }
     int test_once(float num1,float num2);
     int test_special_values();
     int test_zeros();
@@ -65,28 +58,53 @@ public:
     float get_accurate_float(const Fp32 input);
     uint32_t get_rand_uint32();
     float get_rand_nan();
-    int test_a_regular_num(float a,float b);
     int test_regular_num();
     void print(uint32_t int_in);
     uint32_t verif_inout(uint32_t a,uint32_t b);
 };
 
+
 uint32_t Tester::verif_inout(uint32_t a,uint32_t b){
+    auto cpp_push = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    // std::cout << "Time C push to output pipe: " << ctime(&cpp_push) << std::endl;
     to_sv<< a << " " << b <<" "<<round_mode<<std::endl;
     uint32_t value;
-    // printf("input putin");
+    int i=0;
     while(mul_sv.running()&&std::getline(from_sv,line)){
         // std::cout<<line<<std::endl;
-        // printf("!!!!!!!!!\n");
+        // if(line.compare(0, 31, "Time rtl started:") == 0){
+        //     std::cout<<line;
+        //     std::getline(from_sv, line);
+        //     std::cout<<line<<std::endl;
+        // }
+        // if(line.compare(0, 31, "Time rtl get from output pipe:") == 0){
+        //     std::cout<<line;
+        //     std::getline(from_sv, line);
+        //     std::cout<<line<<std::endl;
+        // }
+        // if(line.compare(0, 31, "Time rtl push to input pipe:") == 0){
+        //     std::cout<<line;
+        //     std::getline(from_sv, line);
+        //     std::cout<<line<<std::endl;
+        // }
         if(line.compare(0,4,"res=")==0){
+            auto cpp_get = chrono::system_clock::to_time_t(chrono::system_clock::now());
+            // std::cout << "Time C get from input pipe: " << ctime(&cpp_get) << std::endl;
             std::string value_str=line.substr(4);
             std::istringstream(value_str) >> value;
             // std::cout << "Extracted value: " << value << std::endl;
             break;
         }
+        // if(i==0){
+            // std::string value_str=line;
+            // std::istringstream(value_str) >> value;
+            // printf("in verif_inout::value is %b\n",value);
+            // break;
+        // }
     }
     return value;
 }
+
 
 float Tester::get_rand_float() {
     float res;
@@ -106,6 +124,7 @@ uint32_t Tester::get_rand_uint32(){
 
 int Tester::test_once(float num1,float num2) {
     // Implementation of the testing logic
+    
     int fail=0;
     float res = num1*num2;
     Fp32 fp32_a(num1);
@@ -113,15 +132,28 @@ int Tester::test_once(float num1,float num2) {
     uint32_t int_a=fp32_a.to_uint32();
     uint32_t int_b=fp32_b.to_uint32();
     uint32_t tmp1 =*(uint32_t*)&res;
-    uint32_t tmp2;
-
-    #if DEBUG_SV
+    uint32_t tmp2;  
+    if (test_rtl)
+    {
         tmp2=verif_inout(int_a,int_b);
-    #else
+        // printf("in test_once\n");
+        // printf("into print a:\n");
+        // fp32_a.print();
+        // printf("into print b:\n");
+        // fp32_b.print();
+    }
+    else
+    {
+        // printf("into test_c_modle\n");
         Fp32 fp32_res;
+        if(test_bug){
+            fp32_res.debug=true;
+            // printf("fp32_res_debug is %d\n",fp32_res.debug);
+        }
         fp32_res = fp32_a * fp32_b;
-        tmp2 = fp32_res.to_uint32();    
-    #endif
+        tmp2 = fp32_res.to_uint32();
+    }
+    
     bool a_is_nan;
     bool b_is_nan;
     a_is_nan= ((int_a&0x7f800000)>>23==0xff)&&(int_a&0x007fffff);
@@ -139,22 +171,32 @@ int Tester::test_once(float num1,float num2) {
         printf("--------your res is: ");
         print(tmp2);
         fail=1;
-        exit(1);
-    }{
+    }
+    else{
         fail=0;
     }
-
     return fail;
 }
 
 int Tester::test_special_values(){
-        // Implementation of the testing logic
-        test_zeros();
-        test_infs();
-        test_zero_times_inf();
-        test_one_nan();
-        test_two_nan();
-    return 0;
+    int fail=0;
+    if(test_one){
+        fail=test_zeros();
+    }
+    if(test_inf)
+    {
+        fail=test_infs();
+    }
+    if(test_zero_inf){
+        fail=test_zero_times_inf();
+    }
+    if(test_1_nan){
+        fail=test_one_nan();
+    }
+    if(test_2_nan){
+        fail=test_two_nan();
+    }
+    return fail;
 }
 
 float Tester::get_rand_nan(){
@@ -181,16 +223,16 @@ int Tester::test_zeros(){
     printf("-------test zeros times any regular num-----\n");
     fail=0;
     num2= 00.0000;
-    for (int i = 0; i < special_test_time; i++)
+    for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
     {
         num1=get_rand_float();
-        fail=test_once(num1,num2);
+        fail=fail||test_once(num1,num2);
     }
     num1 = -00.0000;
-    for (int i = 0; i < special_test_time; i++)
+    for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
     {
         num2=get_rand_float();
-        fail=test_once(num1,num2);
+        fail=fail||test_once(num1,num2);
     }
     if(!fail){
         printf("zero times any regular pass!\n");
@@ -198,7 +240,7 @@ int Tester::test_zeros(){
     else{
         printf("zero times any regular fail!\n");
     }
-    return 0;
+    return fail;
 }
 
 int Tester::test_infs(){
@@ -209,16 +251,16 @@ int Tester::test_infs(){
         printf("-------test inf times any regular num-----\n");
         fail=0;
         num2=INFINITY;
-        for (int i = 0; i < special_test_time; i++)
+        for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
         {
             num1=get_rand_float();
-            fail=test_once(num1,num2);
+            fail=fail||test_once(num1,num2);
         }
         num1=-INFINITY;
-        for (int i = 0; i < special_test_time; i++)
+        for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
         {
             num2=get_rand_float();
-            fail=test_once(num1,num2);    
+            fail=fail||test_once(num1,num2);    
         }
         if(!fail){
             printf("inf times any regular pass!\n");
@@ -226,7 +268,7 @@ int Tester::test_infs(){
         else{
             printf("inf times any regular fail!\n");
         }
-        return 0;
+        return fail;
 }
 
 int Tester::test_zero_times_inf(){
@@ -238,23 +280,23 @@ int Tester::test_zero_times_inf(){
         fail=0;
         num2=INFINITY;
         num1=00.0000;
-        fail=test_once(num1,num2);    
+        fail=fail||test_once(num1,num2);    
         num2=INFINITY;
         num1=-00.0000;
-        fail=test_once(num1,num2);    
+        fail=fail||test_once(num1,num2);    
         num2=00.0000;
         num1=-INFINITY;
-        fail=test_once(num1,num2);    
+        fail=fail||test_once(num1,num2);    
         num2=-00.0000;
         num1=-INFINITY;
-        fail=test_once(num1,num2);    
+        fail=fail||test_once(num1,num2);    
         if(!fail){
             printf("zero times inf pass!\n");
         }
         else{
             printf("zero times inf fail!\n");
         }
-        return 0;
+        return fail;
         }
 
 int Tester::test_one_nan(){
@@ -264,17 +306,17 @@ int Tester::test_one_nan(){
     //-------test nan times any regular num
     printf("-------test nan times any regular num-----\n");
     fail=0;
-    for (int i = 0; i < special_test_time; i++)
+    for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
     {
         num2=get_rand_nan();
         num1=get_rand_float();
-        fail=test_once(num1,num2);    
+        fail=fail||test_once(num1,num2);    
     }
-    for (int i = 0; i < special_test_time; i++)
+    for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
     {
         num2=get_rand_float();
         num1=get_rand_nan();
-        fail=test_once(num1,num2);
+        fail=fail||test_once(num1,num2);
     }
     if(!fail){
         printf("nan times any regular pass!\n");
@@ -282,7 +324,7 @@ int Tester::test_one_nan(){
     else{
         printf("nan times any regular fail!\n");
     }
-    return 0;
+    return fail;
 }
 
 int Tester::test_two_nan(){
@@ -292,58 +334,42 @@ int Tester::test_two_nan(){
     //-------test nan times nan
     printf("-------test nan times nan-----\n");
     fail=0;
-    for (int i = 0; i < special_test_time; i++){
+    for (int i = 0; i < SPECIAL_TEST_TIMES; i++){
         num1=get_rand_nan();
         num2=get_rand_nan();
-        fail=test_once(num1,num2);    }
+        fail=fail||test_once(num1,num2);    }
     if(!fail){
         printf("nan times nan pass!\n");
     }
     else{
         printf("nan times nan fail!\n");
     }
-    return 0;
+    return fail;
 }
 
 int Tester::test_regular_num(){
     float num1;
     float num2;
-    int fail;
+    int fail=0;
     //-------test nan times nan
-    printf("-------test regular mul -----\n");
-    fail=0;
-    for (int i = 0; i < test_times; i++){
-        num1=get_rand_float();
-        num2=get_rand_float();
-
-        fail=test_once(num1,num2);
+    if (test_reg)
+    {
+        printf("-------test regular mul -----\n");
+        // printf("test_times is %d",TEST_TIMES);
+        fail=0;
+        for (int i = 0; i < TEST_TIMES; i++){
+            num1=get_rand_float();
+            num2=get_rand_float();
+            fail=fail||test_once(num1,num2);
+        }
+        if(!fail){
+            printf("regular mul test pass!\n");
+        }
+        else{
+            printf("regular mul test fail!\n");
+        }
     }
-    if(!fail){
-        printf("regular mul test pass!\n");
-    }
-    else{
-        printf("regular mul test fail!\n");
-    }
-    return 0;
-}
-
-int Tester::test_a_regular_num(float a,float b){
-    float num1;
-    float num2;
-    int fail;
-    //-------test nan times nan
-    printf("-------test regular mul -----\n");
-    fail=0;
-    num1=a;
-    num2=b;
-    fail=test_once(num1,num2);
-    if(!fail){
-        printf("regular mul test pass!\n");
-    }
-    else{
-        printf("regular mul test fail!\n");
-    }
-    return 0;
+    return fail;
 }
 
 void Tester::print(uint32_t int_in) {
@@ -357,51 +383,189 @@ void Tester::print(uint32_t int_in) {
     printf("\n");
     }
 
-int main(int argc, char **argv) {
-        Tester t1;
-        fesetround(FE_TOWARDZERO);
-        round_mode=03;
-        // printf("round_mode is %u\n",round_mode);
-        fesetround(FE_TONEAREST);
 
-    //----------------test special values--------------------
-#if TEST_MONTE
-    // t1.test_special_values();
-#endif
+void parseArgument_bool(const std::string& arg, const std::string& prefix, bool& variable) {
+    if (arg.compare(0, prefix.size(), prefix) == 0) {
+        std::cout << arg << std::endl;
+        std::string value_str = arg.substr(prefix.size());
+        std::istringstream(value_str) >> variable;
+        // printf("%s is %d\n", prefix.c_str(), variable);
+    }
+}
+void parseArgument_u32(const std::string& arg, const std::string& prefix, uint32_t& variable) {
+    if (arg.compare(0, prefix.size(), prefix) == 0) {
+        std::cout << arg << std::endl;
+        std::string value_str = arg.substr(prefix.size());
+        std::istringstream(value_str) >> variable;
+        // printf("%s is %u\n", prefix.c_str(), variable);
+    }
+}
+
+int main(int argc, char **argv) {
+    bool test_monte          =false ;
+    bool test_bug            =false ;
+    bool test_rnd_nearest    =false ;  
+    bool test_rnd_zero       =false ;
+    bool test_rnd_pos        =false ;
+    bool test_rnd_neg        =false ;
+    bool test_rtl            =false ;
+    bool test_reg            =false ;
+    bool test_one            =false ;
+    bool test_inf            =false ;
+    bool test_zero_inf       =false ;
+    bool test_1_nan          =false ;
+    bool test_2_nan          =false ;
+    int  fail                =0     ;
+
+    bool a_sign              =false ;
+    bool b_sign              =false ;
+    uint32_t a_expo          =0     ;
+    uint32_t b_expo          =0     ;
+    uint32_t a_mant          =0     ;
+    uint32_t b_mant         =0     ;
+    std::unordered_map<std::string, bool*> testVariables = {
+        {"TEST_MONTE", &test_monte},
+        {"TEST_BUG", &test_bug},
+        {"TEST_RND_NEAREST", &test_rnd_nearest},
+        {"TEST_RND_ZERO", &test_rnd_zero},
+        {"TEST_RND_POS", &test_rnd_pos},
+        {"TEST_RND_NEG", &test_rnd_neg},
+        {"TEST_RTL", &test_rtl},
+        {"TEST_REG", &test_reg},
+        {"TEST_ONE", &test_one},
+        {"TEST_INF", &test_inf},
+        {"TEST_ZERO_INF", &test_zero_inf},
+        {"TEST_1_NAN", &test_1_nan},
+        {"TEST_2_NAN", &test_2_nan},
+    };
+
+    // auto start_time = std::chrono::high_resolution_clock::now();
+    auto start_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    std::cout << "Time cpp start: " << ctime(&start_time) << std::endl;
+    // auto simv_time = std::chrono::high_resolution_clock::now();
+    auto simv_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+
+    std::cout << "Time simv start: " << ctime(&simv_time) << std::endl;
+    for (int i = 0; i < argc; ++i) {
+        // std::cout << "Argument " << i << ": " << argv[i] << std::endl;
+        auto it = testVariables.find(argv[i]);
+        if (it != testVariables.end()) {
+            // std::cout << it->first << " is present." << std::endl;
+            *(it->second) = true;
+        }
+        parseArgument_bool(argv[i], "a_sign=", a_sign);
+        parseArgument_bool(argv[i], "b_sign=", b_sign);
+        parseArgument_u32(argv[i], "a_expo=", a_expo);
+        parseArgument_u32(argv[i], "b_expo=", b_expo);
+        parseArgument_u32(argv[i], "a_mant=", a_mant);
+        parseArgument_u32(argv[i], "b_mant=", b_mant);          
+    }
+    // for (const auto& entry : testVariables) {
+    //     std::cout << entry.first << ": " << std::boolalpha << *(entry.second) << std::endl;
+    // }
+
+    //---------------start sv or not--------------------------------
+    std::string simv_executable=SIMV_EXECUTABLE_PATH;
+    std::string quiet   = " -q";
+    std::string debug   = " +RTL_DEBUG";
+    std::string command;
+    if(test_bug)
+        command = simv_executable + quiet + debug;
+    else
+        command = simv_executable + quiet;
+
+    std::cout<<command<<std::endl;
+    Tester t1(command);
+    t1.test_rtl=test_rtl;
+    t1.test_inf=test_inf;
+    t1.test_zero_inf=test_zero_inf;
+    t1.test_1_nan=test_1_nan;
+    t1.test_2_nan=test_2_nan;
+    t1.test_reg  =test_reg;
+    t1.test_one  =test_one;
+    t1.test_bug  =test_bug;
 
     //----------------test regular values--------------------
-#if TEST_MONTE
-    printf("test nearest\n");
-    t1.test_regular_num();
-    printf("test zero\n");
-    round_mode=0;
-    fesetround(FE_TOWARDZERO);
-    t1.test_regular_num();
+    printf("test_monte is %d\n",test_monte);
+    if(test_monte){
+        if(test_rnd_nearest){
+        printf("test nearest::\n");
+        round_mode=3;
+        fesetround(FE_TONEAREST);
+        fail=t1.test_special_values();
+        fail=t1.test_regular_num();
+        printf("\n");
+        }
 
-    printf("test positive\n");
-    round_mode=2;
-    fesetround(FE_UPWARD);
-    t1.test_regular_num();
 
-    printf("test negative\n");
-    round_mode=1;
-    fesetround(FE_DOWNWARD);
-    t1.test_regular_num();
-#endif
-#if TEST_BUG
-    fesetround(FE_TONEAREST);
-    Fp32 a;
-    Fp32 b;
-    a.sign = 1;
-    a.exponent = 95;
-    a.mantissa = 954781;
-    b.sign = 0;
-    b.exponent = 221;
-    b.mantissa = 3770043;
-    float num1=t1.get_accurate_float(a);
-    float num2=t1.get_accurate_float(b);
-    test_once(num1,num2);
-#endif
+        if(test_rnd_zero){
+        printf("test zero::\n");
+        round_mode=0;
+        fesetround(FE_TOWARDZERO);
+        fail=t1.test_special_values();
+        fail=t1.test_regular_num();
+        printf("\n");
+        }
+
+        if(test_rnd_pos){
+        printf("test positive::\n");
+        round_mode=2;
+        fesetround(FE_UPWARD);
+        fail=t1.test_special_values();
+        fail=t1.test_regular_num();
+        printf("\n");
+        }
+
+        if(test_rnd_neg){
+        printf("test negative::\n");
+        round_mode=1;
+        fesetround(FE_DOWNWARD);
+        fail=t1.test_special_values();
+        fail=t1.test_regular_num();
+        }
+    }
+        //----------------debugging--------------------
+    if(test_bug){
+        printf("into test_bug\n");
+        if(test_rnd_nearest){
+        round_mode=3;
+        fesetround(FE_TONEAREST);
+        }
+
+        if(test_rnd_zero){
+        round_mode=0;
+        fesetround(FE_TOWARDZERO);
+        }
+
+        if(test_rnd_pos){
+        round_mode=2;
+        fesetround(FE_UPWARD);
+        }
+
+        if(test_rnd_neg){
+        printf("test negative::\n");
+        round_mode=1;
+        fesetround(FE_DOWNWARD);
+        }
+
+        Fp32 a;
+        Fp32 b;
+        a.sign = a_sign;
+        a.exponent = a_expo;
+        a.mantissa = a_mant;
+        b.sign = b_sign;
+        b.exponent = b_expo;
+        b.mantissa = b_mant;
+        float num1=t1.get_accurate_float(a);
+        float num2=t1.get_accurate_float(b);
+        t1.test_once(num1,num2);
+        if(test_rtl){
+        t1.mul_sv.wait();}
+        
+    }
+    auto test_end = chrono::system_clock::to_time_t(chrono::system_clock::now());
+    std::cout << "Time Test_end: " << ctime(&test_end) << std::endl;
+    return fail;
 }
 
 

@@ -31,21 +31,18 @@ uint32_t round_mode=0;                                                        //
     #define SPECIAL_TEST_TIMES 0
 #endif
 
+bool processArgumens(int argc, char **argv, const std::string&prefix);
+
 class Tester {
 public:
     bp::opstream to_sv  ;
     bp::ipstream from_sv;
     std::string line    ;
     bp::child mul_sv    ;
-    bool test_one       ;
-    bool test_inf       ;
-    bool test_zero_inf  ;
-    bool test_1_nan     ;
-    bool test_2_nan     ;
-    bool test_reg       ;
-    bool test_rtl       ;      
-    bool test_bug       ;
-    Tester(const std::string& executable) : mul_sv(executable, bp::std_in < to_sv, bp::std_out > from_sv){
+    // bool test_one       ;
+    int argc            ;
+    char **argv         ;
+    Tester(const std::string& executable,int argc,char ** argv) : mul_sv(executable, bp::std_in < to_sv, bp::std_out > from_sv),argc(argc),argv(argv){
     }
     int test_once(float num1,float num2);
     int test_special_values();
@@ -98,14 +95,24 @@ uint32_t Tester::get_rand_uint32(){
 int Tester::test_once(float num1,float num2) {
     // Implementation of the testing logic
     int fail=0;
-    float res = num1*num2;
+    float res;
+    if(processArgumens(argc,argv,"TEST_MUL"))
+    {
+        // printf("into test_mul");    
+        res = num1*num2;
+    }
+    if(processArgumens(argc,argv,"TEST_ADD"))
+    {
+        // printf("into test_add\n");
+        res = num1+num2;
+    }
     Fp32 fp32_a(num1);
     Fp32 fp32_b(num2);
     uint32_t int_a=fp32_a.to_uint32();
     uint32_t int_b=fp32_b.to_uint32();
     uint32_t tmp1 =*(uint32_t*)&res;
     uint32_t tmp2;  
-    if (test_rtl)
+    if (processArgumens(argc,argv,"TEST_RTL"))
     {
         tmp2=verif_inout(int_a,int_b);
     }
@@ -113,21 +120,43 @@ int Tester::test_once(float num1,float num2) {
     {
         // printf("into test_c_modle\n");
         Fp32 fp32_res;
-        if(test_bug){
+        if(processArgumens(argc,argv,"TEST_BUG")){
             fp32_res.debug=true;
+            fp32_a.debug=true;
+            fp32_b.debug=true;
             // printf("fp32_res_debug is %d\n",fp32_res.debug);
+            }
+        else{
+            fp32_res.debug=false;
+            fp32_a.debug=false;
+            fp32_b.debug=false;
+
+            // printf("fp32_res_debug is %d\n",fp32_res.debug);
+
         }
-        fp32_res = fp32_a * fp32_b;
+        if(processArgumens(argc,argv,"TEST_MUL"))
+        {
+            // printf("into test_mul\n");    
+            fp32_res = fp32_a * fp32_b;
+        }
+        if(processArgumens(argc,argv,"TEST_ADD"))
+        {
+            // printf("into test_add\n");
+            // printf("fp32_res_debug is %d\n",fp32_res.debug);
+            fp32_res = fp32_a + fp32_b;
+            // printf("fp32_res_debug is %d\n",fp32_res.debug);
+
+        }
         tmp2 = fp32_res.to_uint32();
     }
     
-    bool a_is_nan;
-    bool b_is_nan;
-    a_is_nan= ((int_a&0x7f800000)>>23==0xff)&&(int_a&0x007fffff);
-    b_is_nan= ((int_b&0x7f800000)>>23==0xff)&&(int_b&0x007fffff);
-    if(a_is_nan&&b_is_nan){
-        tmp2=tmp1;
-    }
+    // bool a_is_nan;
+    // bool b_is_nan;
+    // a_is_nan= ((int_a&0x7f800000)>>23==0xff)&&(int_a&0x007fffff);
+    // b_is_nan= ((int_b&0x7f800000)>>23==0xff)&&(int_b&0x007fffff);
+    // if(a_is_nan&&b_is_nan){
+    //     tmp2=tmp1;
+    // }
     if(tmp1!=tmp2){
         printf("--------a is: ");
         fp32_a.print();
@@ -147,20 +176,20 @@ int Tester::test_once(float num1,float num2) {
 
 int Tester::test_special_values(){
     int fail=0;
-    if(test_one){
+    if(processArgumens(argc,argv,"TEST_ONE")){
         fail=test_zeros();
     }
-    if(test_inf)
+    if(processArgumens(argc,argv,"TEST_INF"))
     {
         fail=test_infs();
     }
-    if(test_zero_inf){
+    if(processArgumens(argc,argv,"TEST_ZERO_INF")){
         fail=test_zero_times_inf();
     }
-    if(test_1_nan){
+    if(processArgumens(argc,argv,"TEST_1_NAN")){
         fail=test_one_nan();
     }
-    if(test_2_nan){
+    if(processArgumens(argc,argv,"TEST_2_NAN")){
         fail=test_two_nan();
     }
     return fail;
@@ -192,14 +221,17 @@ int Tester::test_zeros(){
     num2= 00.0000;
     for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
     {
+        // printf("fail is %d\n",fail);
         num1=get_rand_float();
         fail=fail||test_once(num1,num2);
+        // printf("fail is %d\n",fail);
     }
     num1 = -00.0000;
     for (int i = 0; i < SPECIAL_TEST_TIMES; i++)
     {
         num2=get_rand_float();
         fail=fail||test_once(num1,num2);
+        // printf("fail is %d\n",fail);
     }
     if(!fail){
         printf("zero times any regular pass!\n");
@@ -319,7 +351,7 @@ int Tester::test_regular_num(){
     float num2;
     int fail=0;
     //-------test nan times nan
-    if (test_reg)
+    if (processArgumens(argc,argv,"TEST_REG"))
     {
         printf("-------test regular mul -----\n");
         // printf("test_times is %d",TEST_TIMES);
@@ -351,151 +383,107 @@ void Tester::print(uint32_t int_in) {
     }
 
 
-void parseArgument_bool(const std::string& arg, const std::string& prefix, bool& variable) {
-    if (arg.compare(0, prefix.size(), prefix) == 0) {
-        std::cout << arg << std::endl;
-        std::string value_str = arg.substr(prefix.size());
-        std::istringstream(value_str) >> variable;
+uint32_t parseArgument_u32(int argc,char **argv,const std::string&prefix) {
+    uint32_t variable=0;
+    for (int i = 0; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg.compare(0, prefix.size(), prefix) == 0) {
+            std::cout << arg << std::endl;
+            std::string value_str = arg.substr(prefix.size());
+            std::istringstream(value_str) >> variable;
+        }
     }
+    return variable;
 }
-void parseArgument_u32(const std::string& arg, const std::string& prefix, uint32_t& variable) {
-    if (arg.compare(0, prefix.size(), prefix) == 0) {
-        std::cout << arg << std::endl;
-        std::string value_str = arg.substr(prefix.size());
-        std::istringstream(value_str) >> variable;
+bool processArgumens(int argc, char **argv, const std::string&prefix){
+    bool value = false;
+    for (int i = 0; i < argc; ++i) {
+        std::string arg = argv[i];
+        if(arg.compare(0,prefix.size(),prefix)==0){
+            value=true;
+        }
     }
+    return value;
 }
-
 int main(int argc, char **argv) {
-    bool test_monte          =false ;
-    bool test_bug            =false ;
-    bool test_rnd_nearest    =false ;  
-    bool test_rnd_zero       =false ;
-    bool test_rnd_pos        =false ;
-    bool test_rnd_neg        =false ;
-    bool test_rtl            =false ;
-    bool test_reg            =false ;
-    bool test_one            =false ;
-    bool test_inf            =false ;
-    bool test_zero_inf       =false ;
-    bool test_1_nan          =false ;
-    bool test_2_nan          =false ;
-    int  fail                =0     ;
-
+    int  fail_1              =0     ;
+    int  fail_2              =0     ;
     bool a_sign              =false ;
     bool b_sign              =false ;
     uint32_t a_expo          =0     ;
     uint32_t b_expo          =0     ;
     uint32_t a_mant          =0     ;
-    uint32_t b_mant         =0     ;
-    std::unordered_map<std::string, bool*> testVariables = {
-        {"TEST_MONTE", &test_monte},
-        {"TEST_BUG", &test_bug},
-        {"TEST_RND_NEAREST", &test_rnd_nearest},
-        {"TEST_RND_ZERO", &test_rnd_zero},
-        {"TEST_RND_POS", &test_rnd_pos},
-        {"TEST_RND_NEG", &test_rnd_neg},
-        {"TEST_RTL", &test_rtl},
-        {"TEST_REG", &test_reg},
-        {"TEST_ONE", &test_one},
-        {"TEST_INF", &test_inf},
-        {"TEST_ZERO_INF", &test_zero_inf},
-        {"TEST_1_NAN", &test_1_nan},
-        {"TEST_2_NAN", &test_2_nan},
-    };
-
-    for (int i = 0; i < argc; ++i) {
-        auto it = testVariables.find(argv[i]);
-        if (it != testVariables.end()) {
-            *(it->second) = true;
-        }
-        parseArgument_bool(argv[i], "a_sign=", a_sign);
-        parseArgument_bool(argv[i], "b_sign=", b_sign);
-        parseArgument_u32(argv[i], "a_expo=", a_expo);
-        parseArgument_u32(argv[i], "b_expo=", b_expo);
-        parseArgument_u32(argv[i], "a_mant=", a_mant);
-        parseArgument_u32(argv[i], "b_mant=", b_mant);          
-    }
-
+    uint32_t b_mant          =0     ;
     //---------------start sv or not--------------------------------
     std::string simv_executable=SIMV_EXECUTABLE_PATH;
     std::string quiet   = " -q";
     std::string debug   = " +RTL_DEBUG";
     std::string command;
-    if(test_bug)
+    if(processArgumens(argc,argv,"TEST_BUG"))
         command = simv_executable + quiet + debug;
     else
         command = simv_executable + quiet;
 
     std::cout<<command<<std::endl;
-    Tester t1(command);
-    t1.test_rtl=test_rtl;
-    t1.test_inf=test_inf;
-    t1.test_zero_inf=test_zero_inf;
-    t1.test_1_nan=test_1_nan;
-    t1.test_2_nan=test_2_nan;
-    t1.test_reg  =test_reg;
-    t1.test_one  =test_one;
-    t1.test_bug  =test_bug;
-
+    Tester t1(command,argc,argv);
     //----------------test regular values--------------------
-    printf("test_monte is %d\n",test_monte);
-    if(test_monte){
-        if(test_rnd_nearest){
+    if(processArgumens(argc,argv,"TEST_MONTE")){
+        if(processArgumens(argc,argv,"TEST_RND_NEAREST")){
         printf("test nearest::\n");
         round_mode=3;
         fesetround(FE_TONEAREST);
-        fail=t1.test_special_values();
-        fail=t1.test_regular_num();
+        printf("test_special_values::\n");
+
+        fail_1=t1.test_special_values();
+        fail_2=t1.test_regular_num();
         printf("\n");
         }
 
-
-        if(test_rnd_zero){
+        if(processArgumens(argc,argv,"TEST_RND_ZERO")){
         printf("test zero::\n");
         round_mode=0;
         fesetround(FE_TOWARDZERO);
-        fail=t1.test_special_values();
-        fail=t1.test_regular_num();
+        fail_1=t1.test_special_values();
+        fail_2=t1.test_regular_num();
         printf("\n");
         }
 
-        if(test_rnd_pos){
+        if(processArgumens(argc,argv,"TEST_RND_POS")){
         printf("test positive::\n");
         round_mode=2;
         fesetround(FE_UPWARD);
-        fail=t1.test_special_values();
-        fail=t1.test_regular_num();
+        fail_1=t1.test_special_values();
+        fail_2=t1.test_regular_num();
         printf("\n");
         }
 
-        if(test_rnd_neg){
+        if(processArgumens(argc,argv,"TEST_RND_NEG")){
         printf("test negative::\n");
         round_mode=1;
         fesetround(FE_DOWNWARD);
-        fail=t1.test_special_values();
-        fail=t1.test_regular_num();
+        fail_1=t1.test_special_values();
+        fail_2=t1.test_regular_num();
         }
     }
         //----------------debugging--------------------
-    if(test_bug){
+    if(processArgumens(argc,argv,"TEST_BUG")){
         printf("into test_bug\n");
-        if(test_rnd_nearest){
+        if(processArgumens(argc,argv,"TEST_RNG_NEAREST")){
         round_mode=3;
         fesetround(FE_TONEAREST);
         }
 
-        if(test_rnd_zero){
+        if(processArgumens(argc,argv,"TEST_RND_ZERO")){
         round_mode=0;
         fesetround(FE_TOWARDZERO);
         }
 
-        if(test_rnd_pos){
+        if(processArgumens(argc,argv,"TEST_RND_POS")){
         round_mode=2;
         fesetround(FE_UPWARD);
         }
 
-        if(test_rnd_neg){
+        if(processArgumens(argc,argv,"TEST_RND_NEG")){
         printf("test negative::\n");
         round_mode=1;
         fesetround(FE_DOWNWARD);
@@ -503,19 +491,19 @@ int main(int argc, char **argv) {
 
         Fp32 a;
         Fp32 b;
-        a.sign = a_sign;
-        a.exponent = a_expo;
-        a.mantissa = a_mant;
-        b.sign = b_sign;
-        b.exponent = b_expo;
-        b.mantissa = b_mant;
+        a.sign = parseArgument_u32(argc, argv,"a_sign=");
+        a.exponent = parseArgument_u32(argc, argv,"a_expo=");;
+        a.mantissa = parseArgument_u32(argc, argv,"a_mant=");
+        b.sign = parseArgument_u32(argc, argv,"b_sign=");
+        b.exponent = parseArgument_u32(argc, argv,"b_expo=");
+        b.mantissa = parseArgument_u32(argc, argv,"b_mant=");;
         float num1=t1.get_accurate_float(a);
         float num2=t1.get_accurate_float(b);
-        t1.test_once(num1,num2);
-        if(test_rtl){
+        fail_2=t1.test_once(num1,num2);
+        if(processArgumens(argc,argv,"TEST_RTLS")){
         t1.mul_sv.wait();}
-        
     }
+    int fail=fail_1||fail_2;
     return fail;
 }
 

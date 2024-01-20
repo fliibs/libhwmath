@@ -43,12 +43,339 @@ Fp32 Fp32::operator* (const Fp32 &rhs) {
         return mul(rhs);
     }
 
+Fp32 Fp32::operator+ (const Fp32 &rhs) {
+        return add(rhs);
+    }
+
 void Fp32::print() {
     printf("value      : %12f\n", (float)*this);
     printf(" - sign    : %12ld\n",sign);
     printf(" - exponent: %12ld,%64lb, 2^(%d)\n",exponent,exponent,exponent-127);
     printf(" - mantissa: %12ld,%64lb, %f\n",mantissa,mantissa+ (1 << 23),(float)(mantissa + (1 << 23))/(1<<23));
     printf("\n");
+    }
+    
+Fp32 Fp32::add(const Fp32 &rhs){
+    Fp32 result(0.0f);
+    //--------------to determine 0, NAN and INF
+    
+    //-----------expand mant_a and mant_b to 48 bit
+    bool a_expo_or   = exponent!=0               ;
+    bool b_expo_or   = rhs.exponent!=0           ; 
+    bool a_is_n0;
+    bool b_is_n0;
+    a_is_n0=(exponent!=0)||(mantissa!=0);
+    b_is_n0=(rhs.exponent!=0)||(rhs.mantissa!=0);
+    uint64_t mant_a_l;
+    uint64_t mant_b_l;
+    mant_a_l         = (((static_cast<uint32_t>(a_expo_or)) << 23) +mantissa)    <<23    ;
+    mant_b_l         = (((static_cast<uint32_t>(b_expo_or)) << 23) +rhs.mantissa)<<23    ;
+    debug_printf("mant_a_l is %lb",mant_a_l);
+    debug_printf("mant_b_l is %lb",mant_b_l);
+
+    //------------expo_1
+    debug_printf("---------------------------");
+    debug_printf("------into expo_1----------");
+    debug_printf("---------------------------");
+    bool a_big;
+    uint32_t a_31    = (exponent     << 23) + mantissa                   ;
+    uint32_t b_31    = (rhs.exponent << 23) + rhs.mantissa               ; 
+    a_big            = (a_31>=b_31)   ? 1              : 0               ;
+    debug_printf("a_big is %d",static_cast<int>(a_big))                  ;
+
+    //------------sign_pre
+    debug_printf("---------------------------");
+    debug_printf("------into sign_pre--------");
+    debug_printf("---------------------------");
+    bool     same_sign  ;
+    bool     sign_with_m;
+    bool     sign_neg   ;
+
+
+    same_sign   =   (rhs.sign == sign)                ;
+
+    sign_with_m =   (!same_sign) && (!(a_big ^ sign)) ; //sign is the same as minu-subtr;
+    
+    sign_neg    =   (!same_sign) && (a_big ^ sign)    ; //sign is the opposite as minu-subtr;
+
+    // sign_1      =   a_big ? sign : rhs.sign           ;
+
+    debug_printf("same_sign is %d",static_cast<int>(same_sign))                   ;
+    debug_printf("sign_with_m is %u",static_cast<int>(sign_with_m))               ;
+    debug_printf("sign_neg is %u",static_cast<int>(sign_neg))                     ;
+    
+    //-----------mant_c and mant_s
+    debug_printf("---------------------------");
+    debug_printf("------into mant_c and mant_s---------");
+    debug_printf("---------------------------");
+    uint64_t mant_s      ;
+    uint64_t mant_c      ;
+    uint32_t minu_e      ;
+    uint32_t subtr_e     ;
+    bool     minu_exp_or ;
+    bool     subtr_exp_or;
+    
+    minu_e      = a_big ?  exponent     : rhs.exponent      ;
+    minu_exp_or = a_big ? a_expo_or     : b_expo_or         ;
+    subtr_e     = a_big ?  rhs.exponent : exponent          ;
+    subtr_exp_or= a_big ? b_expo_or     : a_expo_or         ;
+
+    uint32_t expo_1  = minu_e                               ;
+    uint32_t shift_l = minu_e - subtr_e + static_cast<uint32_t>(!minu_exp_or) - static_cast<uint32_t>(!subtr_exp_or) ;
+
+    debug_printf("minu_expo_is_0 is %d",static_cast<uint32_t>(!minu_exp_or));
+    debug_printf("subtr_expo_is_0 is %d",static_cast<uint32_t>(!minu_exp_or));
+
+    debug_printf("expo_1 is %u",expo_1)  ;
+    debug_printf("subr_e is %u",subtr_e) ; 
+    debug_printf("shift_l is %u",shift_l);
+    //--added
+    bool shift_more_than_48 ;
+    shift_more_than_48= shift_l >= 47 ? 1:0;
+    shift_l     = shift_l > 48 ? 48                     : shift_l                ; 
+    mant_s      = a_big        ? (mant_b_l >> shift_l)  : (mant_a_l >> shift_l)  ;
+    // if(a_big){
+    //     if(shift_more_than_48 && b_is_n0)
+    //         mant_s=1;
+    //     else
+    //         mant_s=mant_b_l>>shift_l;
+    // }
+    // else{
+    //     if(shift_more_than_48 && a_is_n0)
+    //         mant_s=1;
+    //     else
+    //         mant_s=mant_a_l>>shift_l;
+    // }
+    if(a_big){
+        if((!mant_s)&&(mant_b_l))
+            mant_s=1;
+        else
+            mant_s=mant_b_l>>shift_l;
+    }
+    else{
+        if(!mant_s&&mant_a_l)
+            mant_s=1;
+        else
+            mant_s=mant_a_l>>shift_l;
+    }
+    if(a_big){
+        debug_printf("mant_shift is b");
+    }
+    else{
+        debug_printf("mant_shift is a");
+    }
+
+    if(a_big && (sign||sign_neg)){
+        mant_c = 1-mant_a_l ;
+        debug_printf("mant_comp is 1-a");
+    } 
+    else{
+        if(a_big && (!sign))
+        {
+            mant_c = mant_a_l;
+            debug_printf("mant_comp is a");
+        }
+        else{
+            if((!a_big)&&((rhs.sign)||sign_neg)){
+                mant_c = 1 - mant_b_l;
+                debug_printf("mant_comp is 1-b");
+            }
+            else{
+                mant_c = mant_b_l;
+                debug_printf("mant_comp is b");
+            }
+        }
+    }
+    uint64_t debug_refe_c=0x7fffff800000;
+
+    debug_printf("mant_s is %lu",mant_s)                    ;
+    debug_printf("mant_s is %lb",mant_s)                    ;
+    debug_printf("mant_c is %lu",mant_c)                    ;
+    debug_printf("mant_c is %lb",mant_c)                    ;
+    // debug_printf("mant_b is %lb",mant_b_l)                  ;
+    debug_printf("refe_c is %lb",debug_refe_c)              ;
+    debug_printf("shift_more_than_48 is %d",static_cast<int>(shift_more_than_48));
+
+
+    //-----------mant_a and mant_b and mant_2
+    debug_printf("---------------------------");
+    debug_printf("------into mant_2---------");
+    debug_printf("---------------------------");
+    uint64_t mant_a     ;
+    uint64_t mant_b     ;
+    uint64_t mant_1     ;
+
+    mant_a      =   mant_s                                      ;
+    mant_b      =   same_sign ? (a_big ? mant_a_l :mant_b_l)    :
+                    mant_c                                      ;
+
+    mant_1      =   mant_a    + mant_b                          ;
+    
+    bool mant_carry     ;
+    bool mant_1_sign    ;
+    bool sign_2         ;
+    
+    uint64_t mant_mid   ;
+    uint32_t zero_nums  ;
+
+    uint64_t mant_2     ;
+    uint64_t expo_2     ;
+    
+    mant_1_sign = mant_1 & mantissa_49_bit                      ; 
+    sign_2      = sign_neg             ? (!mant_1_sign) : mant_1_sign     ;
+    mant_mid    = (sign_2 || sign_neg) ? (1-mant_1)     : mant_1          ;
+
+    //leading zero detects,actually it can be detecting the leading 1 nums in mant_1
+    mant_carry  = mant_mid & mantissa_48_bit                    ;
+    mant_2      = mant_carry ?  mant_mid >> 1 : mant_mid        ;
+    expo_2      = mant_carry ?  expo_1 + 1    : expo_1          ;
+
+    zero_nums=get_the_zero_nums_add(mant_2);
+    debug_printf("the zero_nums is %d",zero_nums);
+
+
+    if(expo_2<=zero_nums){
+        debug_printf("into expo<=zero_nums");
+        uint32_t right_shift;
+        right_shift= expo_2 ? (expo_2-1):expo_2; 
+        mant_2 = mant_2<<right_shift;
+        expo_2 = 0                 ;
+    }
+    else
+    {
+        debug_printf("into expo>zero_nums");
+        mant_2 = mant_2 <<zero_nums;
+        expo_2 = expo_2 - zero_nums;
+    }
+
+    
+    debug_printf("mant_1 is %lb"     ,mant_1)                           ;
+    debug_printf("refe_c is %lb"    ,debug_refe_c)                      ;
+    debug_printf("mant_1_sign is %d",static_cast<int>(mant_1_sign))     ;
+    debug_printf("sign_2 is %d"     ,static_cast<int>(sign_2))          ;
+    debug_printf("mant_mid is %lb"  ,mant_mid)                          ;
+    debug_printf("refe_c   is %lb"  ,debug_refe_c)                      ;
+
+    debug_printf("mant_carry is %d",static_cast<int>(mant_carry))       ;
+
+    debug_printf("mant_2 is %lb"    ,mant_2)                            ;
+    debug_printf("refe_c is %lb"    ,debug_refe_c)                      ;
+
+    debug_printf("expo_2 is %u"     ,expo_2)                            ;
+    debug_printf("---------------------------");
+    debug_printf("------into rounding--------");
+    debug_printf("---------------------------");
+
+    bool sign_c;
+    sign_c  = same_sign ? sign : sign_2 ;
+    bool     g          ;
+    bool     r          ;
+    bool     s          ;
+    bool     s_bit_r    ;
+    bool     rnd_carry  ;
+    
+    uint32_t expo_3     ;
+    uint32_t mant_3     ;
+    uint64_t mant_rnd   ;
+
+    s_bit_r = mant_mid & 0x01                      ;                                                                           
+    g       = mant_2 & the_24_binary               ;
+    r       = mant_2 & the_23_binary               ;
+    s       = (mant_2 & last_22_binary) || s_bit_r ;
+
+    rnd_carry  =   (round_mode==3) ? ((r && (g||s))    ?1:0) : 
+                    (round_mode==2) ? ((!sign_c) &&(a_is_n0) && (b_is_n0) &&(r||s||(expo_2==0 && mant_2==0) ?1:0)) :
+                    (round_mode==1) ? (sign_c    &&(a_is_n0) && (b_is_n0) &&(r||s||(expo_2==0 && mant_2==0) ?1:0)) :
+                    0;
+    
+    
+    mant_rnd    =   (mant_2>>23) + rnd_carry                 ;
+    expo_3      =   (mant_rnd&the_25_binary)||((!expo_2)&&(mant_rnd&the_24_binary)) ? (expo_2 + 1)                    : expo_2                     ;
+    mant_3      =   (mant_rnd&the_25_binary)                                        ? ((mant_rnd>>1) & last_23_binary): (mant_rnd & last_23_binary);  
+    
+    debug_printf("rnd_mode is %d",  round_mode);
+    debug_printf("g is %d"              ,static_cast<int>(g))           ;
+    debug_printf("r is %d"              ,static_cast<int>(r))           ;
+    debug_printf("s is %d"              ,static_cast<int>(s))           ;
+    debug_printf("a_is_n0 is %d"        ,static_cast<int>(a_is_n0))     ;
+    debug_printf("b_is_n0 is %d"        ,static_cast<int>(b_is_n0))     ;
+    debug_printf("b_is_n0 is %d"        ,static_cast<int>(b_is_n0))     ;
+    debug_printf("l_con is %d"      ,static_cast<int>(r||s||(expo_2==0)))   ;
+    debug_printf("rnd carry is %d"      ,static_cast<int>(rnd_carry))   ;
+    debug_printf("mant_rnd is %lb"      ,mant_rnd)                      ;
+    debug_printf("mant_rnd_25 is %lb"   ,mant_rnd&the_25_binary)        ;
+    debug_printf("expo_3 is %u"         ,expo_3)                        ;
+    debug_printf("mant_3 is %lb"        ,mant_3)                        ;
+
+    //------masking 
+    debug_printf("---------------------------");
+    debug_printf("------into masking---------");
+    debug_printf("---------------------------");
+    bool    overflow   ;
+
+    bool    a_is_0     ;
+    bool    b_is_0     ;
+    bool    a_is_inf   ;
+    bool    b_is_inf   ;
+    bool    a_is_nan   ;
+    bool    b_is_nan   ;
+
+    bool    r_is_nan   ;
+    bool    is_inf_nan ;
+    uint32_t mant_unsel;
+    uint32_t mant_nan  ;
+    bool     sign_unsel;
+    bool     sign_nan  ;
+
+
+    overflow    = expo_3>=255                                ;
+    a_is_0      = (exponent==0)         && (mantissa==0)     ;
+    b_is_0      = (rhs.exponent==0)     && (rhs.mantissa==0) ;
+    a_is_inf    = (exponent==255)       && (mantissa==0)     ;
+    b_is_inf    = (rhs.exponent==255)   && (rhs.mantissa==0) ;
+    a_is_nan    = (exponent==255)       && (mantissa!=0)     ;
+    b_is_nan    = (rhs.exponent==255)   && (rhs.mantissa!=0) ;
+
+    r_is_nan    = a_is_nan | b_is_nan                        ;
+    is_inf_nan  = a_is_nan | b_is_nan | a_is_inf | b_is_inf  ;
+    
+    mant_unsel  = ((exponent<<1)+(mantissa!=0) >= (rhs.exponent<<1)+(rhs.mantissa!=0) ) ? ((1<<22)+(mantissa & last_22_binary)) :((1<<22)+(rhs.mantissa & last_22_binary));
+    mant_nan    = r_is_nan                   ? mant_unsel                            : 0                                       ;
+
+    sign_unsel  = ((exponent<<1)+(mantissa!=0) >= (rhs.exponent<<1)+(rhs.mantissa!=0) ) ?  sign                                  : rhs.sign                                ;
+    result.sign = r_is_nan                   ? sign_unsel                            : sign_c                                  ;
+
+    debug_printf("mant_unsel is %b",mant_unsel);
+
+    bool    mode_1  ;
+    bool    mode_0 ;
+
+    mode_1      = round_mode & 0x02;
+    mode_0      = round_mode & 0x01;
+
+    
+    if(is_inf_nan){
+        debug_printf("result is inf or nan");
+        result.exponent = 255               ;
+        result.mantissa = mant_nan          ;
+    }
+    else{
+        debug_printf("into regular")        ;
+        if(overflow){
+            debug_printf("overflow")        ;
+            result.exponent   = ((mode_1 && (!result.sign)) || (mode_0 && result.sign)) ? 255 : 254         ;
+            result.mantissa   = ((mode_1 && (!result.sign)) || (mode_0 && result.sign)) ? 0   : 0x7fffff    ;  
+        }
+        else{
+            debug_printf("not overflow")    ;
+            result.exponent   = expo_3      ;
+            result.mantissa   = mant_3      ;
+            debug_printf("mant_3 is %lb",mant_3);
+            debug_printf("mant_r is %lb",result.mantissa);
+        }
+    }
+    debug_printf("sign_c is %d",static_cast<int>(sign_c ));
+    return result;
     }
 
 Fp32 Fp32::mul(const Fp32 &rhs){
@@ -277,9 +604,28 @@ uint32_t Fp32::detect_one(uint64_t *mantissa_in,uint32_t width)
     (*mantissa_in)            =   one_exist ?   mantissa_record:(*mantissa_in);
     return one_exist;
 }
+
+uint32_t Fp32::get_the_zero_nums_add(uint64_t mantissa_in){
+    uint32_t zero_nums;
+    uint32_t zero_num_5;
+    uint32_t zero_num_4;
+    uint32_t zero_num_3;
+    uint32_t zero_num_2;
+    uint32_t zero_num_1;
+    uint32_t zero_num_0;
+    zero_num_5      =   !detect_one(&mantissa_in,32);
+    zero_num_4      =   !detect_one(&mantissa_in,16);
+    zero_num_3      =   !detect_one(&mantissa_in,8);
+    zero_num_2      =   !detect_one(&mantissa_in,4);
+    zero_num_1      =   !detect_one(&mantissa_in,2);
+    zero_num_0      =   !detect_one(&mantissa_in,1);
+    zero_nums   =   (zero_num_5<<5)+(zero_num_4<<4)+(zero_num_3<<3)+(zero_num_2<<2)+(zero_num_1<<1)+zero_num_0;
+    return zero_nums;
+}
+
 void Fp32::debug_printf(const char* cmd, ...){
 if(debug){  
-    printf("debug is %d\n",debug);  
+    // printf("debug is %d\n",debug);  
     va_list args; // 用来存储单个参数
     va_start(args, cmd); // 用args指向可变参数的第一个参数
     while (*cmd != '\0') {
@@ -331,6 +677,6 @@ if(debug){
     std::cout << std::endl;
 }
 else{
-    printf("debug is %d\n",debug);  
+    // printf("debug is %d\n",debug);  
 }
 }
