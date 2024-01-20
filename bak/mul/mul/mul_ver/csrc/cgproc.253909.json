@@ -1,0 +1,55 @@
+{
+    "Modules": {
+        "...MASTER...": {},
+        "std": {
+            "Compiled": "Yes",
+            "Compiled Times": 75
+        },
+        "mul_tb": {
+            "Compiled": "Yes",
+            "Compiled Times": 75
+        }
+    },
+    "CompUnits": {
+        "EBsvs_d": {
+            "out": "EBsvs_d.o",
+            "mod": "mul_tb",
+            "bytes": 97906,
+            "mode": 4,
+            "checksum": 0,
+            "archive": "archive.74/_253909_archive_1.a"
+        },
+        "amcQw_d": {
+            "out": "objs/amcQw_d.o",
+            "mod": "...MASTER...",
+            "bytes": 7560,
+            "mode": 4,
+            "checksum": 0
+        },
+        "reYIK_d": {
+            "out": "reYIK_d.o",
+            "mod": "std",
+            "bytes": 41475,
+            "mode": 4,
+            "checksum": 0,
+            "archive": "archive.74/_253909_archive_1.a"
+        }
+    },
+    "reusePaths": {},
+    "ObjArchives": [
+        {
+            "archive": "archive.74/_253909_archive_1.a",
+            "size": 139381,
+            "objects": [
+                [
+                    "reYIK_d.o",
+                    41475
+                ],
+                [
+                    "EBsvs_d.o",
+                    97906
+                ]
+            ]
+        }
+    ]
+}
