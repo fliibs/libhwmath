@@ -129,23 +129,10 @@ Fp32 Fp32::add(const Fp32 &rhs){
     debug_printf("expo_1 is %u",expo_1)  ;
     debug_printf("subr_e is %u",subtr_e) ; 
     debug_printf("shift_l is %u",shift_l);
-    //--added
     bool shift_more_than_48 ;
     shift_more_than_48= shift_l >= 47 ? 1:0;
     shift_l     = shift_l > 48 ? 48                     : shift_l                ; 
     mant_s      = a_big        ? (mant_b_l >> shift_l)  : (mant_a_l >> shift_l)  ;
-    // if(a_big){
-    //     if(shift_more_than_48 && b_is_n0)
-    //         mant_s=1;
-    //     else
-    //         mant_s=mant_b_l>>shift_l;
-    // }
-    // else{
-    //     if(shift_more_than_48 && a_is_n0)
-    //         mant_s=1;
-    //     else
-    //         mant_s=mant_a_l>>shift_l;
-    // }
     if(a_big){
         if((!mant_s)&&(mant_b_l))
             mant_s=1;
@@ -233,7 +220,8 @@ Fp32 Fp32::add(const Fp32 &rhs){
     zero_nums=get_the_zero_nums_add(mant_2);
     debug_printf("the zero_nums is %d",zero_nums);
 
-
+    if((mant_2&mantissa_48_bit)||mant_2&(mantissa_49_bit))
+        printf("mant_2'48 and 49 bit is not always 0");
     if(expo_2<=zero_nums){
         debug_printf("into expo<=zero_nums");
         uint32_t right_shift;
@@ -284,8 +272,8 @@ Fp32 Fp32::add(const Fp32 &rhs){
     s       = (mant_2 & last_22_binary) || s_bit_r ;
 
     rnd_carry  =   (round_mode==3) ? ((r && (g||s))    ?1:0) : 
-                    (round_mode==2) ? ((!sign_c) &&(a_is_n0) && (b_is_n0) &&(r||s||(expo_2==0 && mant_2==0) ?1:0)) :
-                    (round_mode==1) ? (sign_c    &&(a_is_n0) && (b_is_n0) &&(r||s||(expo_2==0 && mant_2==0) ?1:0)) :
+                   (round_mode==2) ? ((!sign_c) &&(a_is_n0) && (b_is_n0) &&(r||s||(expo_2==0 && mant_2==0) ?1:0)) :
+                   (round_mode==1) ? (sign_c    &&(a_is_n0) && (b_is_n0) &&(r||s||(expo_2==0 && mant_2==0) ?1:0)) :
                     0;
     
     
@@ -298,9 +286,9 @@ Fp32 Fp32::add(const Fp32 &rhs){
     debug_printf("r is %d"              ,static_cast<int>(r))           ;
     debug_printf("s is %d"              ,static_cast<int>(s))           ;
     debug_printf("a_is_n0 is %d"        ,static_cast<int>(a_is_n0))     ;
+    debug_printf("b_is_n0 is %d"        ,static_cast<int>(b_is_n0))     ;  
     debug_printf("b_is_n0 is %d"        ,static_cast<int>(b_is_n0))     ;
-    debug_printf("b_is_n0 is %d"        ,static_cast<int>(b_is_n0))     ;
-    debug_printf("l_con is %d"      ,static_cast<int>(r||s||(expo_2==0)))   ;
+    debug_printf("l_con is %d"          ,static_cast<int>(r||s||(expo_2==0)))   ;
     debug_printf("rnd carry is %d"      ,static_cast<int>(rnd_carry))   ;
     debug_printf("mant_rnd is %lb"      ,mant_rnd)                      ;
     debug_printf("mant_rnd_25 is %lb"   ,mant_rnd&the_25_binary)        ;
@@ -587,7 +575,7 @@ uint32_t Fp32::get_the_zero_nums(uint64_t *mantissa_in){
     zero_num_2      =   !detect_one(&*mantissa_in,4);
     zero_num_1      =   !detect_one(&*mantissa_in,2);
     zero_num_0      =   !detect_one(&*mantissa_in,1);
-    zero_nums   =   (zero_num_5<<5)+(zero_num_4<<4)+(zero_num_3<<3)+(zero_num_2<<2)+(zero_num_1<<1)+zero_num_0;
+    zero_nums       =   (zero_num_5<<5)+(zero_num_4<<4)+(zero_num_3<<3)+(zero_num_2<<2)+(zero_num_1<<1)+zero_num_0;
     return zero_nums;
 }
 

@@ -64,7 +64,6 @@ public:
 uint32_t Tester::verif_inout(uint32_t a,uint32_t b){
     to_sv<< a << " " << b <<" "<<round_mode<<std::endl;
     uint32_t value;
-    int i=0;
     while(mul_sv.running()&&std::getline(from_sv,line)){
         if(line.compare(0,4,"res=")==0){
             std::string value_str=line.substr(4);
@@ -91,19 +90,16 @@ uint32_t Tester::get_rand_uint32(){
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
         return static_cast<uint32_t>(rand());
 }
-
 int Tester::test_once(float num1,float num2) {
     // Implementation of the testing logic
     int fail=0;
     float res;
     if(processArgumens(argc,argv,"TEST_MUL"))
     {
-        // printf("into test_mul");    
         res = num1*num2;
     }
     if(processArgumens(argc,argv,"TEST_ADD"))
     {
-        // printf("into test_add\n");
         res = num1+num2;
     }
     Fp32 fp32_a(num1);
@@ -111,52 +107,35 @@ int Tester::test_once(float num1,float num2) {
     uint32_t int_a=fp32_a.to_uint32();
     uint32_t int_b=fp32_b.to_uint32();
     uint32_t tmp1 =*(uint32_t*)&res;
-    uint32_t tmp2;  
+    uint32_t tmp2 =0; 
     if (processArgumens(argc,argv,"TEST_RTL"))
     {
         tmp2=verif_inout(int_a,int_b);
     }
     else
     {
-        // printf("into test_c_modle\n");
         Fp32 fp32_res;
         if(processArgumens(argc,argv,"TEST_BUG")){
             fp32_res.debug=true;
             fp32_a.debug=true;
             fp32_b.debug=true;
-            // printf("fp32_res_debug is %d\n",fp32_res.debug);
             }
         else{
             fp32_res.debug=false;
             fp32_a.debug=false;
             fp32_b.debug=false;
-
-            // printf("fp32_res_debug is %d\n",fp32_res.debug);
-
         }
         if(processArgumens(argc,argv,"TEST_MUL"))
         {
-            // printf("into test_mul\n");    
             fp32_res = fp32_a * fp32_b;
         }
         if(processArgumens(argc,argv,"TEST_ADD"))
         {
-            // printf("into test_add\n");
-            // printf("fp32_res_debug is %d\n",fp32_res.debug);
             fp32_res = fp32_a + fp32_b;
-            // printf("fp32_res_debug is %d\n",fp32_res.debug);
-
         }
-        tmp2 = fp32_res.to_uint32();
+        tmp2=fp32_res.to_uint32();
     }
     
-    // bool a_is_nan;
-    // bool b_is_nan;
-    // a_is_nan= ((int_a&0x7f800000)>>23==0xff)&&(int_a&0x007fffff);
-    // b_is_nan= ((int_b&0x7f800000)>>23==0xff)&&(int_b&0x007fffff);
-    // if(a_is_nan&&b_is_nan){
-    //     tmp2=tmp1;
-    // }
     if(tmp1!=tmp2){
         printf("--------a is: ");
         fp32_a.print();
@@ -418,89 +397,108 @@ int main(int argc, char **argv) {
     std::string simv_executable=SIMV_EXECUTABLE_PATH;
     std::string quiet   = " -q";
     std::string debug   = " +RTL_DEBUG";
+    std::string model_m = " +MUL";
+    std::string model_a = " +ADD";
     std::string command;
     if(processArgumens(argc,argv,"TEST_BUG"))
         command = simv_executable + quiet + debug;
     else
         command = simv_executable + quiet;
+        // command = simv_executable ;
+
+    if(processArgumens(argc,argv,"MUL"))
+        command = command + model_m;
+    if(processArgumens(argc,argv,"ADD"))
+        command = command + model_a;
 
     std::cout<<command<<std::endl;
     Tester t1(command,argc,argv);
     //----------------test regular values--------------------
     if(processArgumens(argc,argv,"TEST_MONTE")){
         if(processArgumens(argc,argv,"TEST_RND_NEAREST")){
-        printf("test nearest::\n");
-        round_mode=3;
-        fesetround(FE_TONEAREST);
-        printf("test_special_values::\n");
-
-        fail_1=t1.test_special_values();
-        fail_2=t1.test_regular_num();
-        printf("\n");
+            printf("test nearest::\n");
+            round_mode=3;
+            fesetround(FE_TONEAREST);
+            printf("test_special_values::\n");
+            fail_1=t1.test_special_values();
+            fail_2=t1.test_regular_num();
+            printf("\n");
         }
 
         if(processArgumens(argc,argv,"TEST_RND_ZERO")){
-        printf("test zero::\n");
-        round_mode=0;
-        fesetround(FE_TOWARDZERO);
-        fail_1=t1.test_special_values();
-        fail_2=t1.test_regular_num();
-        printf("\n");
+            printf("test zero::\n");
+            round_mode=0;
+            fesetround(FE_TOWARDZERO);
+            fail_1=t1.test_special_values();
+            fail_2=t1.test_regular_num();
+            printf("\n");
         }
 
         if(processArgumens(argc,argv,"TEST_RND_POS")){
-        printf("test positive::\n");
-        round_mode=2;
-        fesetround(FE_UPWARD);
-        fail_1=t1.test_special_values();
-        fail_2=t1.test_regular_num();
-        printf("\n");
+            printf("test positive::\n");
+            round_mode=2;
+            fesetround(FE_UPWARD);
+            fail_1=t1.test_special_values();
+            fail_2=t1.test_regular_num();
+            printf("\n");
         }
 
         if(processArgumens(argc,argv,"TEST_RND_NEG")){
-        printf("test negative::\n");
-        round_mode=1;
-        fesetround(FE_DOWNWARD);
-        fail_1=t1.test_special_values();
-        fail_2=t1.test_regular_num();
+            printf("test negative::\n");
+            round_mode=1;
+            fesetround(FE_DOWNWARD);
+            fail_1=t1.test_special_values();
+            fail_2=t1.test_regular_num();
         }
     }
         //----------------debugging--------------------
     if(processArgumens(argc,argv,"TEST_BUG")){
         printf("into test_bug\n");
-        if(processArgumens(argc,argv,"TEST_RNG_NEAREST")){
-        round_mode=3;
-        fesetround(FE_TONEAREST);
+        if(processArgumens(argc,argv,"TEST_RND_NEAREST")){
+            printf("test nearest::\n");
+            round_mode=3;
+            fesetround(FE_TONEAREST);
         }
 
         if(processArgumens(argc,argv,"TEST_RND_ZERO")){
-        round_mode=0;
-        fesetround(FE_TOWARDZERO);
+            printf("test zero::\n");
+            round_mode=0;
+            fesetround(FE_TOWARDZERO);
         }
 
         if(processArgumens(argc,argv,"TEST_RND_POS")){
-        round_mode=2;
-        fesetround(FE_UPWARD);
+            printf("test positive::\n");
+            round_mode=2;
+            fesetround(FE_UPWARD);
         }
 
         if(processArgumens(argc,argv,"TEST_RND_NEG")){
-        printf("test negative::\n");
-        round_mode=1;
-        fesetround(FE_DOWNWARD);
+            printf("test negative::\n");
+            round_mode=1;
+            fesetround(FE_DOWNWARD);
         }
 
         Fp32 a;
         Fp32 b;
-        a.sign = parseArgument_u32(argc, argv,"a_sign=");
-        a.exponent = parseArgument_u32(argc, argv,"a_expo=");;
-        a.mantissa = parseArgument_u32(argc, argv,"a_mant=");
-        b.sign = parseArgument_u32(argc, argv,"b_sign=");
-        b.exponent = parseArgument_u32(argc, argv,"b_expo=");
-        b.mantissa = parseArgument_u32(argc, argv,"b_mant=");;
+        // a.sign = parseArgument_u32(argc, argv,"a_sign=");
+        // a.exponent = parseArgument_u32(argc, argv,"a_expo=");;
+        // a.mantissa = parseArgument_u32(argc, argv,"a_mant=");
+        // b.sign = parseArgument_u32(argc, argv,"b_sign=");
+        // b.exponent = parseArgument_u32(argc, argv,"b_expo=");
+        // b.mantissa = parseArgument_u32(argc, argv,"b_mant=");
+        
+        a.sign     = 0;
+        a.exponent = 80;
+        a.mantissa = 4507310;
+        b.sign     = 1;
+        b.exponent = 83;
+        b.mantissa = 1586813;
+
         float num1=t1.get_accurate_float(a);
         float num2=t1.get_accurate_float(b);
-        fail_2=t1.test_once(num1,num2);
-        if(processArgumens(argc,argv,"TEST_RTLS")){
+        fail_2=fail_2||t1.test_once(num1,num2);
+
+        if(processArgumens(argc,argv,"TEST_RTL")){
         t1.mul_sv.wait();}
     }
     int fail=fail_1||fail_2;
