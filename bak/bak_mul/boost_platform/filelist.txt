@@ -1,4 +1,0 @@
-./calculate.cpp
-./main.cpp
-./test.cpp
-./fp32.cpp

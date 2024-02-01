@@ -68,7 +68,7 @@ mant_exp_l            mant_b_l      ;
 //-------------shift and complement judge 
 logic                 a_big         ;
 logic                 same_sign     ;
-logic                 sign_with_m   ;
+// logic                 sign_with_m   ;
 logic                 sign_neg      ;
               
 mant_exp_l            mant_s_unc    ;
@@ -148,7 +148,7 @@ assign mant_b_l = {2'b0,{|b_expo},b_mant,23'b0}    ;
 //-----------------------------------
 assign a_big        =  ({a_expo,a_mant} >= {b_expo,b_mant})? 1'b1:1'b0      ;
 assign same_sign    =  (a_sign==b_sign)                    ? 1'b1:1'b0      ;
-assign sign_with_m  =  (!same_sign) && ((!a_big) ^ a_sign)                  ;
+// assign sign_with_m  =  (!same_sign) && ((!a_big) ^ a_sign)                  ;
 assign sign_neg     =  (!same_sign) && (a_big    ^ a_sign)                  ;
 
 assign minu_e       =  a_big   ? a_expo     : b_expo    ;
@@ -216,10 +216,9 @@ add_lod u_add_lod(
 );
 
 assign mant_2_prs_n[MANT_EXP_L-1:MANT_EXP_L-2]=2'b0         ;
-assign r_shift_unc                            = (expo_2_unc!=10'b0) ? (expo_2_unc-1) : expo_2_unc ;
 
+assign r_shift_unc  = (expo_2_unc!=10'b0) ? (expo_2_unc-10'b1) : expo_2_unc ;
 assign r_shift      = ((r_shift_unc[MANT_EXP_D-1]&&r_shift_unc[MANT_EXP_D-2])||(|r_shift_unc[EXPO_W-1:MANT_EXP_D]))?6'b101111:r_shift_unc[MANT_EXP_D-1:0];
-
 assign mant_2_prs_e = mant_2_unc << r_shift ; //47 right shift optimzed!!!!!;
 always_comb begin
     if(expo_2_unc<={{(EXPO_EXP_L-MANT_EXP_D){1'b0}},zero_nums})begin

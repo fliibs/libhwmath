@@ -1,23 +1,5 @@
-/////////////////////////////////////////////////////////////////////////////////
-// Company: BYD
-// Engineer: yumiaoyu
-//
-// Create Date: 01/09/2024 15:54:34 PM
-// Design Name: 
-// Module Name: LOD
-// Project Name: mul_para
-// Description:
-//              leading one detector
-// Dependencies:
-//
-// Revision:
-//              Revision 0.01 - File Created
-// Additional Comments:
-//
-//////////////////////////////////////////////////////////////////////////////////
-
 module  mul_lod #(
-    parameter  int unsigned INPUT_WIDTH  = 24                   ,
+    parameter  int unsigned INPUT_WIDTH  = 24,
     localparam int unsigned AWIDTH       = $clog2(INPUT_WIDTH)-1
 ) (
     input  logic [INPUT_WIDTH - 1 : 0]    in_detect,

@@ -65,6 +65,7 @@ uint32_t Tester::verif_inout(uint32_t a,uint32_t b){
     to_sv<< a << " " << b <<" "<<round_mode<<std::endl;
     uint32_t value;
     while(mul_sv.running()&&std::getline(from_sv,line)){
+        // std::cout<<line<<std::endl;
         if(line.compare(0,4,"res=")==0){
             std::string value_str=line.substr(4);
             std::istringstream(value_str) >> value;
@@ -102,10 +103,15 @@ int Tester::test_once(float num1,float num2) {
     {
         res = num1+num2;
     }
+
     Fp32 fp32_a(num1);
     Fp32 fp32_b(num2);
     uint32_t int_a=fp32_a.to_uint32();
     uint32_t int_b=fp32_b.to_uint32();
+    // printf("------int_a--------\n");
+    // print(int_a);
+    // printf("------int_b--------\n");
+    // print(int_b);
     uint32_t tmp1 =*(uint32_t*)&res;
     uint32_t tmp2 =0; 
     if (processArgumens(argc,argv,"TEST_RTL"))
@@ -154,6 +160,7 @@ int Tester::test_once(float num1,float num2) {
 }
 
 int Tester::test_special_values(){
+    
     int fail=0;
     if(processArgumens(argc,argv,"TEST_ONE")){
         fail=test_zeros();
@@ -487,12 +494,12 @@ int main(int argc, char **argv) {
         // b.exponent = parseArgument_u32(argc, argv,"b_expo=");
         // b.mantissa = parseArgument_u32(argc, argv,"b_mant=");
         
-        a.sign     = 0;
-        a.exponent = 80;
-        a.mantissa = 4507310;
+        a.sign     = 1;
+        a.exponent = 130;
+        a.mantissa = 8227373;
         b.sign     = 1;
-        b.exponent = 83;
-        b.mantissa = 1586813;
+        b.exponent = 0;
+        b.mantissa = 343410;
 
         float num1=t1.get_accurate_float(a);
         float num2=t1.get_accurate_float(b);

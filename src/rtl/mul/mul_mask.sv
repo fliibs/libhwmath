@@ -1,20 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Company: BYD
-// Engineer: yumiaoyu 
-//
-// Create Date: 01/09/2024 15:54:34 PM
-// Design Name: 
-// Module Name: mask
-// Project Name: mul_para
-// Description:
-//              find the leading one and trun it into one-hot format
-// Dependencies:
-//
-// Revision:
-//              Revision 0.01 - File Created
-// Additional Comments:
-//
-//////////////////////////////////////////////////////////////////////////////////
 module mul_mask #(
     parameter int unsigned INPUT_WIDTH = 24 
 ) (
