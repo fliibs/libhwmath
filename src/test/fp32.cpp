@@ -692,10 +692,16 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     a_mant_in = (((1-a_expo_is_zero)<<23)+a.mantissa);
     b_mant_in = (((1-b_expo_is_zero)<<23)+b.mantissa);
     mant_mul  = a_mant_in * b_mant_in;
+
+    uint32_t expo_mul;//10 bits
+    expo_mul  = a.exponent + b.exponent - 0x7f + a_expo_is_zero + b_expo_is_zero;
+
     
     //-------------------------------------------  
     //---------------shift and inversion of a 
     //-------------------------------------------  
+    uint32_t expo_stor;//store the correst expo_nums,for the sake of shifter,10 bits
+
     bool sign_mul = a.sign ^ b.sign;
     bool sub      = sign_mul ^ c.sign;
     uint32_t c_mant_in;//24 bits
@@ -703,7 +709,7 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     c_mant_in = (((1-c_expo_is_zero)<<23)+c.mantissa);
 
     uint32_t d; //the diff between c-(a+b)
-    d= (c.exponent + c_expo_is_zero)- (a.exponent + b.exponent - 0x7f + a_expo_is_zero + b_expo_is_zero);
+    d= (c.exponent + c_expo_is_zero)- (expo_mul);
     bool d_sign = d & exponent_sign;//the 10 bit
     uint32_t shift_num;//7 bit
     uint32_t shift_num_0;//when d>0
@@ -713,6 +719,7 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     shift_num_0 = ((27-d)>27) ? 27 : (27-d);
     shift_num_1 = ((74-d)>74) ? 74 : (74-d);
     shift_num   = d_sign      ? shift_num_1 : shift_num_0 ;
+    expo_stor   = d_sign      ? expo_mul    : c.exponent  ;
 
 
     mp::cpp_int c_mant_l; //74 bit 
@@ -722,9 +729,7 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     c_mant_l = c_mant_in << 50;       //{c_mant_in,50'b0}
     c_inv    = sub ? (0-c_mant_l) : c_mant_l;
     c_mant_s = c_inv >> shift_num;    //shift right with sign extension
-
-
-
+    
     //-------------------------------------------  
     //-----------get st1
     //-------------------------------------------  
@@ -751,7 +756,10 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     uint32_t mul_top_25;
     mul_top_25 = mant_mul>>23;//the top 25 bits of mant_mul;
     c_bigger   = c_mant_in>mul_top_25;
-    complement = sub && (c_bigger||(d>0));
+    complement = sub && ((c_bigger&&(d_sign))||(d>0));
+    bool sign_add;
+    sign_add   = complement ? (!sign_mul) : sign_mul;
+
 
     //---------------------------------------------------------------------------------
     //-----------csa add.one 48-bit adder + one 2-bit adder + two 24-bit adders + 
@@ -764,18 +772,27 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     
     //because there are two 1's to complement the first one added at the adder the second one added at the carry and sticky cal
 
-    uint64_t mant_add_low;//the lower 48 bits of c_mant_s
-    mant_add_low=cpp_int_last_bit(c_mant_s,12);//
+    uint64_t mant_add_in;//the lower 48 bits of c_mant_s
+    mant_add_in=cpp_int_last_bit(c_mant_s,12);//
     
     uint64_t mant_add_low;//48-bit of c_mant_s + 49-bit {mul_csa_carry,sub} + 49-bit {mul_csa_sum,st1_bar}
     uint64_t mant_add_low_inv;//adder_inv + 1 
     //two adder one for normal add , one for inverted add
     uint64_t mant_add_in_l;
     uint64_t mant_mul_l;
-    mant_add_in_l      = (mant_add_low<<1) + sub ;
+    uint64_t mant_add_in_l_inv;
+    uint64_t mant_mul_l_inv;
+    mant_add_in_l      = (mant_add_in<<1) + sub ;
     mant_mul_l         = (mant_mul<<1)+(!st1);
-    mant_add_low       = mant_add_in_l + mant_mul_l; //49-bit adder,result 50 bit, available  49 bits
-    mant_add_low_inv   = (0-mant_add_in_l) + (0-mant_mul_l) + 2; //inverted adder 49-bit adder ,result 51 bit ,available 50 bits
+
+    mant_add_in_l_inv  = (0-mant_add_in_l);
+    mant_mul_l_inv     = (0-mant_mul_l);
+
+    mant_add_low       = mant_add_in_l + mant_mul_l; //49-bit adder,result 50 bit, available  49 bits.
+    mant_add_low       = mant_add_low>>1;
+
+    mant_add_low_inv   = mant_add_in_l_inv + mant_mul_l_inv + 2; //inverted adder 49-bit adder ,result 51 bit ,available 50 bits
+    mant_add_low_inv   = mant_add_low_inv>>1;
     //overlap 2 bits
 
     mant_low_res = complement ? (mant_add_low_inv & mantissa_get_48_bit) : (mant_add_low & mantissa_get_48_bit);       //the last 48 bits
@@ -817,34 +834,241 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     }
 
     mp::cpp_int mant_add;
-    mant_add=(mant_high_res<<50)+(mant_mid_res%(1<<2)<<48)+(mant_low_res);
+    mant_add=(mant_high_res<<50)+(mant_mid_res%(1<<2)<<48)+(mant_low_res);//75 bits
 
     //-------------------------------------------  
     //-----------loa,parallel with the adder
     //-------------------------------------------   
     //-----------get the adder leading zeros,only depanding on the p g a and d and sub, so it can be merged with the adder
-    //-----------get the leading zero of the higher bits and the lower bits seperately, sacrifices the area
-    //-----------has two leading zero detector for normal and converted ones,the LSB has 1 carry to the converted ones
-     
+    //-----------can get the leading zero of the higher bits and the lower bits seperately, sacrifices the area.
+    //-----------get the 24 bits of zero and get the 51 bits of zero
+    //-----------has two leading zero detector for normal and converted ones    
+    mp::cpp_int a_in(mant_add_in_l);
+    mp::cpp_int b_in(mant_mul_l);
+    mp::cpp_int a_in_v(mant_add_in_l_inv);
+    mp::cpp_int b_in_v(mant_mul_l_inv+2);
+    uint32_t zero_nums_nor;
+    uint32_t zero_nums_inv;
+    uint32_t zero_nums;
+    zero_nums_nor   = loa(75,a_in,b_in);
+    zero_nums_inv   = loa(75,a_in_v,b_in_v);
+    zero_nums       = complement ? zero_nums_inv:zero_nums_nor;
     
+    //-------------------------------------------  
+    //-----------shifter,get the top 24 bits
+    //-------------------------------------------   
+    //75-bit shifter can be a 27-bit and a 48-bit shifter
+
+    //if zero_nums <= shift_nums+1, left shift zero_nums;
+    //---------------------------------------------if zero_nums=shift_num,expo+1
+    //---------------------------------------------else                  ,expo remains the same
+    //if zero_nums >  shift_nums+1,
+    //-----------------------d>=0,store c exponent, shift_dif=zero_nums-(shift_num+1)<expo_stor,left shift zero_nums ,expo=expo_store-shift_dif;
+                                                                                           //else expo=0,shift_left=expo_stor
+
+    //-----------------------d<0,store mul exponent,shift_dif=zero_nums-(shift_num+1)<expo_stor,left shift zero_nums ,expo=expo_store-shift_dif;
+    //---------------------------------------------shift_dif=zero_nums-(shift_num+1)>=expo_stor,expo=0
+                                                                                          //expo_stor >=0,shift_left <<27 + expo_stor //no more than 46
+                                                                                          //expo_stor <0,shift_left <<27 - (-expo_stor)//no less than 0
+    uint32_t expo_shift;//10 bits outputs
+    mp::cpp_int mant_shift;//75 bits outputs 
+    bool st2;
+
+    uint32_t re_shift_num=shift_num+1;  //7bit
+
+    uint32_t shift_1_ena;//control the long shift    
+    shift_1_ena     = d_sign?27:0;
+    uint32_t left_shift_1;//control the  zero_nums shift 
+    left_shift_1    = zero_nums-shift_1_ena;
+
+    uint32_t shift_dif;  // condition for if else
+    shift_dif       = zero_nums-(re_shift_num);
+    
+    // uint32_t left_shift_2;//control the expo_stor - shift_dif shift
+    // left_shift_2    = expo_stor-shift_dif;
+
+    mp::cpp_int mant_lshift_in;
+
+    mp::cpp_int mant_shift_1;//75 bits,the short shift results;
+
+    mant_shift_1 = mant_add << 27;
+
+    mant_lshift_in=d_sign?mant_shift_1:mant_add;
+
+    if(zero_nums<=re_shift_num)
+    {   
+        st2         = false;
+        expo_shift  = (zero_nums==re_shift_num)? (expo_stor + 1) : expo_stor ;
+        mant_shift  =  mant_lshift_in << left_shift_1;
+    }
+    else
+    {
+        if(shift_dif<expo_stor)
+        {
+            st2         = false;
+            expo_shift  = expo_stor - shift_dif;
+            mant_shift  = mant_lshift_in << left_shift_1;
+        }
+        else
+        {
+            expo_shift  = 0;
+            if(!(expo_stor & exponent_sign))  //d>=0
+            {
+                st2         = false;
+                mant_shift  = mant_lshift_in << expo_stor;
+            }
+            else
+            {
+                mp::cpp_int mask;
+                mask        = (1ULL<<(-expo_stor)) - 1;
+                st2         = ((mask & mant_lshift_in)!=0);
+                mant_shift  = mant_lshift_in >> (-expo_stor);
+            }
+        }
+    }
     
 
     //-------------------------------------------  
-    //-----------shifter
+    //-----------rnd,another adding 1 is here
     //-------------------------------------------   
-    //75-bit shifter can be a 25-bit and a 50-bit shifter
+    //top 25 bits , 2:g 1:r ,the last 50 bits get s 
+    //output mant_rnd
+    //output expo_rnd
+    uint32_t mant_rnd;
+    uint32_t expo_rnd;
+    uint32_t mant_rnd_unc;
+    bool g;
+    bool g_1;
+    bool r;
+    bool r_1;
+    bool s;
+    bool mant_add_1;            //mant add 1 condition
+    bool expo_add_1;            //expo add complement / carry 1 condition
+    bool expo_add_1_c;          //expo add complement and carry 1 condition  
+    bool mant_carry;            //normal mant_carry
+    bool mant_carry_1;          //mant add complement 1 carry
+    bool rnd_carry;
 
 
-    //-------------------------------------------  
-    //-----------rnd
-    //-------------------------------------------   
-    //
+    uint32_t mant_rnd_top;      //top 25 bits
+    uint32_t mant_rnd_top_1;    //top 25 bits add comlement_1/carry_1
+    uint32_t mant_rnd_top_1_c;  //top 25 bits add complement_1 and carry_1
+    uint64_t mant_rnd_last;     //last 50 bits 
+    uint32_t expo_shift_1;      //expo_shift add 1
+
+    mant_rnd_top    = cpp_int_cut_bit(mant_shift,25,50);
+    mant_rnd_last   = cpp_int_last_bit(mant_shift,50);
+    mant_rnd_top_1  = mant_rnd_top + 1;
+    mant_rnd_top_1_c= mant_rnd_top + 2;
     
+    expo_shift_1    = expo_shift + 1;
+
+    mant_add_1      = (mant_rnd_top == mantissa_get_50_bit)&&complement;
+    expo_add_1      = (mant_rnd_top_1   & mantissa_26_bit) || ((!expo_shift) && (mant_rnd_top_1   & the_25_binary));
+    expo_add_1_c    = (mant_rnd_top_1_c & mantissa_26_bit) || ((!expo_shift) && (mant_rnd_top_1_c & the_25_binary));
+
+    
+    g               = mant_rnd_top   & 0x02;
+    r               = mant_rnd_top   & 0x01;
+    g_1             = mant_rnd_top_1 & 0x02;
+    r_1             = mant_rnd_top_1 & 0x01;
+    s               = (mant_rnd_last != 0) || complement || st1 ||st2;
+
+    mant_carry      = (round_mode==3) ? ((r  && (g||s))   ?1:0) : 
+                      (round_mode==2) ? ((!sign_add)      ?1:0) :
+                      (round_mode==1) ? (sign_add         ?1:0) :
+                       0;    
+    mant_carry_1    = (round_mode==3) ? (r_1              ?1:0) : 
+                      (round_mode==2) ? ((!sign_add)      ?1:0) :
+                      (round_mode==1) ? (sign_add         ?1:0) :
+                       0;    
+    
+    rnd_carry       = mant_add_1 ? mant_carry_1 : mant_carry    ;
+    //case
+    if(mant_add_1 && rnd_carry){
+        mant_rnd_unc    = mant_rnd_top_1_c;
+        expo_rnd        = expo_add_1_c  ?   expo_shift_1 : expo_shift;
+        mant_rnd        = expo_add_1_c  ?   ((mant_rnd_unc>>2) & last_23_binary): ((mant_rnd_unc>>1) & last_23_binary);
+    }
+    else
+    {
+        if(mant_add_1 ^ rnd_carry)
+        {
+            mant_rnd_unc    = mant_rnd_top_1;
+            expo_rnd        = expo_add_1 ?  expo_shift_1 : expo_shift;
+            mant_rnd        = expo_add_1 ?   ((mant_rnd_unc>>2) & last_23_binary): ((mant_rnd_unc>>1) & last_23_binary);
+
+        }
+        else
+            mant_rnd_unc    = mant_rnd_top;
+            mant_rnd        = (mant_rnd_top>>1) & last_23_binary;
+    }
 
     //-------------------------------------------  
     //-----------mask 
     //-------------------------------------------   
-    //
+    //if there exist a inf results is inf or nan; result is inf and nan 
+    //input sign_add
+    //input expo_rnd
+    //input mant_rnd
+    //input 
+    bool overflow;
+    bool r_is_nan;
+    bool is_inf_nan;
+    uint32_t  mant_unsel;
+    uint32_t  mant_nan;
+    bool sign_unsel;
+    bool sign_nan;
+
+    overflow=expo_rnd>=255;
+    r_is_nan    = a_is_nan || b_is_nan || c_is_nan || (a_is_0 & b_is_inf) || (a_is_inf & b_is_0); 
+    is_inf_nan  = r_is_nan || a_is_inf || b_is_inf || c_is_inf;
+    uint32_t a_expo_mant; //{expo,|mant}
+    uint32_t b_expo_mant;
+    uint32_t c_expo_mant;
+    uint32_t mid_expo_mant;
+    uint32_t mid_mantissa;
+    bool     mid_sign;
+
+    a_expo_mant     = (a.exponent<<1)+(a.mantissa!=0);
+    b_expo_mant     = (b.exponent<<1)+(b.mantissa!=0);
+    c_expo_mant     = (c.exponent<<1)+(c.mantissa!=0);
+
+    mid_expo_mant   = (a_expo_mant>=b_expo_mant)  ? a_expo_mant:b_expo_mant;
+    mid_mantissa    = (a_expo_mant>=b_expo_mant)  ? ((1<<22)+(a.mantissa & last_22_binary)) : ((1<<22)+(b.mantissa & last_22_binary));
+    mant_unsel      = (mid_expo_mant>=c_expo_mant)? mid_mantissa  : ((1<<22)+(c.mantissa & last_22_binary));
+    mant_nan        = r_is_nan                    ? mant_unsel    : 0;
+
+    mid_sign        = (a_expo_mant>=b_expo_mant)  ? a.sign        : b.sign;
+    sign_unsel      = (mid_expo_mant>=c_expo_mant)? mid_sign      : c.sign;
+    result.sign     = r_is_nan                    ? sign_unsel    : sign_add;
+
+    bool mode_1;
+    bool mode_0;
+
+    mode_1      = round_mode & 0x02;
+    mode_0      = round_mode & 0x01;
+
+    if(is_inf_nan)
+    {
+        result.exponent=255;
+        result.mantissa=mant_nan;
+    }   
+    else
+    {
+        if(overflow)
+        {
+            result.exponent = ((mode_1 && (!result.sign)) || (mode_0 && result.sign)) ? 255 : 254         ;
+            result.mantissa = ((mode_1 && (!result.sign)) || (mode_0 && result.sign)) ? 0   : 0x7fffff    ;  
+        }
+        else
+        {
+            result.exponent = expo_rnd;
+            result.mantissa = mant_rnd;
+        }
+    } 
+
+    return result;
 }
 
 uint64_t Fp32::cpp_int_last_bit(const mp::cpp_int a,int cut_length){
@@ -865,6 +1089,107 @@ uint32_t Fp32::cpp_int_cut_bit(const mp::cpp_int a, int cut_bit,int shift_bit){
     std::string oss = mp::to_string(a_in);
     uint32_t result = std::stoul(oss, nullptr, 10);
     return result;
+}
+
+int* Fp32::get_p(int array_length,mp::cpp_int input_a,mp::cpp_int input_b){
+    int* p=new int[array_length];
+    for (int i = 0; i < array_length; i++)
+    {
+        int a_last  =   static_cast<int>(input_a&0x01);
+        int b_last  =   static_cast<int>(input_b&0x01);
+        p[i]        =   a_last ^ b_last;   
+        input_a     =   input_a>>1;
+        input_b     =   input_b>>1;   
+    }
+    return p;
+}
+
+int* Fp32::get_g(int array_length,mp::cpp_int input_a,mp::cpp_int input_b){
+    int* g=new int[array_length];
+    for (int i = 0; i < array_length; i++)
+    {
+        int a_last  =   static_cast<int>(input_a&0x01);
+        int b_last  =   static_cast<int>(input_b&0x01);
+        g[i]        =   a_last & b_last;           
+        input_a     =   input_a>>1;
+        input_b     =   input_b>>1; 
+    }
+    return g;
+}
+
+int* Fp32::get_a(int array_length,mp::cpp_int input_a,mp::cpp_int input_b){
+    int* a=new int[array_length];
+    for (int i = 0; i < array_length; i++)
+    {
+        int a_last  =   static_cast<int>(input_a&0x01);
+        int b_last  =   static_cast<int>(input_b&0x01);
+        a[i]        =   !(a_last | b_last);           
+        input_a     =   input_a>>1;
+        input_b     =   input_b>>1; 
+    }
+    return a;
+}
+
+void Fp32::freeArray(int* arr){
+    delete[] arr;
+}
+
+uint32_t Fp32::loa(int array_length,mp::cpp_int input_a,mp::cpp_int input_b){
+    int *k      = new int [array_length];
+    int *p_exp  = new int [array_length+1];
+    int *p_cin  = new int [array_length];
+
+    int *p      = get_p(array_length,input_a,input_b);
+    int *g      = get_g(array_length,input_a,input_b);
+    int *a      = get_a(array_length,input_a,input_b);
+    int *f      = new int [array_length];
+
+    for (int i = 0; i < array_length+1; i++)
+    {
+        if(i==(array_length+1))
+            p_exp[i]   = 0;
+        else
+            p_exp[i]   = p[i];
+    }
+
+    for (int i = 0; i < array_length; i++)
+    {
+        k[i]    = p[i+1]&g[i];
+    }
+
+    for (int i = 0; i < array_length; i++)
+    {
+        if(i==0)
+            p_cin[i]    = 0;
+        else
+            p_cin[i]    = p[i]&k[i-1] +p[i]&p_cin[i-1]; 
+    }
+
+    for (int i=0;i<array_length;i++)
+    {
+        if(i==0)
+            f[i]    = !a[i];
+        else
+            f[i]    = !(a[i]&(!(p_cin[i-1]||g[i-1])));
+    }
+
+    mp::cpp_int mask=0;
+    for (int i=0;i<array_length;i++)
+    {
+        mask    = mask<<1+f[i];
+    }
+
+    uint32_t zero_nums;
+    
+    zero_nums=detect_one_long(&mask,array_length);
+    freeArray(k);
+    freeArray(p_exp);
+    freeArray(p_cin);
+    freeArray(p);
+    freeArray(g);
+    freeArray(a);
+    freeArray(f);
+    return zero_nums;
 }
 
 void Fp32::debug_printf(const char* cmd, ...){

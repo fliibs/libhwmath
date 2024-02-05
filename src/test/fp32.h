@@ -5,6 +5,7 @@
 #include <random>
 #include <limits>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <cmath>
 namespace mp = boost::multiprecision;
 
 #ifndef fp32_h
@@ -31,6 +32,12 @@ namespace mp = boost::multiprecision;
 #define last_23_binary          0x07fffff
 #define g_bit                   0x0800000
 #define r_bit                   0x0400000
+
+#define mantissa_75_bit         0x1000000000000000000
+#define mantissa_get_50_bit     0x3ffffffffffff
+#define mantissa_26_bit         0x400000000
+
+                                
 
 
 #define underflow_downrange ((static_cast<uint32_t>(1) << 32) - 127)
@@ -64,6 +71,11 @@ class Fp32{
         uint32_t detect_one_long(mp::cpp_int *mantissa_in,uint32_t width);
         void debug_printf(const char* cmd, ...);
         uint64_t cpp_int_last_bit(const mp::cpp_int a,int cut_length);
-        uint32_t cpp_int_cut_bit(const mp::cpp_int a, int cut_bit,int shift_bit)
+        uint32_t cpp_int_cut_bit(const mp::cpp_int a, int cut_bit,int shift_bit);
+        void freeArray(int *arr);
+        int* get_p(int array_length,mp::cpp_int input_a,mp::cpp_int input_b);
+        int* get_g(int array_length,mp::cpp_int input_a,mp::cpp_int input_b);
+        int* get_a(int array_length,mp::cpp_int input_a,mp::cpp_int input_b);
+        uint32_t loa(int array_length,mp::cpp_int input_a,mp::cpp_int input_b);
 };
 #endif//FP32_H

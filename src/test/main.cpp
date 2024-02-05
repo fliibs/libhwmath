@@ -51,15 +51,18 @@ public:
     int test_zero_times_inf();
     int test_one_nan();
     int test_two_nan();
+
     float get_rand_float();
+    float get_rand_nan();
+    float get_rand_zero();
+    float get_rand_inf();
+    
     float get_accurate_float(const Fp32 input);
     uint32_t get_rand_uint32();
-    float get_rand_nan();
     int test_regular_num();
     void print(uint32_t int_in);
     uint32_t verif_inout(uint32_t a,uint32_t b);
 };
-
 
 uint32_t Tester::verif_inout(uint32_t a,uint32_t b){
     to_sv<< a << " " << b <<" "<<round_mode<<std::endl;
@@ -74,7 +77,6 @@ uint32_t Tester::verif_inout(uint32_t a,uint32_t b){
     }
     return value;
 }
-
 
 float Tester::get_rand_float() {
     float res;
@@ -91,6 +93,7 @@ uint32_t Tester::get_rand_uint32(){
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
         return static_cast<uint32_t>(rand());
 }
+
 int Tester::test_once(float num1,float num2) {
     // Implementation of the testing logic
     int fail=0;
@@ -187,6 +190,14 @@ float Tester::get_rand_nan(){
     float floatvalue;
     std::memcpy(&floatvalue, &intValue, sizeof(float));
     return floatvalue;
+}
+
+float Tester::get_rand_zero(){
+
+}
+
+float Tester::get_rand_inf(){
+
 }
 
 float Tester::get_accurate_float(const Fp32 input){
@@ -368,7 +379,6 @@ void Tester::print(uint32_t int_in) {
     printf("\n");
     }
 
-
 uint32_t parseArgument_u32(int argc,char **argv,const std::string&prefix) {
     uint32_t variable=0;
     for (int i = 0; i < argc; ++i) {
@@ -381,6 +391,7 @@ uint32_t parseArgument_u32(int argc,char **argv,const std::string&prefix) {
     }
     return variable;
 }
+
 bool processArgumens(int argc, char **argv, const std::string&prefix){
     bool value = false;
     for (int i = 0; i < argc; ++i) {
@@ -391,6 +402,7 @@ bool processArgumens(int argc, char **argv, const std::string&prefix){
     }
     return value;
 }
+
 int main(int argc, char **argv) {
     int  fail_1              =0     ;
     int  fail_2              =0     ;
