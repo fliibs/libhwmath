@@ -73,8 +73,8 @@ if(debug){
     uint64_t ref_l_2=mant_get_50_bit_l;
     std::bitset<64> ref_h_bin_1(ref_h_1);
     std::bitset<64> ref_l_bin_1(ref_l_1);
-    std::bitset<64> ref_h_bin_2(ref_h_2);
-    std::bitset<64> ref_l_bin_2(ref_l_2);
+    // std::bitset<64> ref_h_bin_2(ref_h_2);
+    // std::bitset<64> ref_l_bin_2(ref_l_2);
 
     uint64_t ref_50=mantissa_get_50_bit;
     std::bitset<64> ref_50_bin(ref_50);
@@ -108,10 +108,10 @@ if(debug){
     if(str==check_string){
         std::cout<<output_h_bin;
         std::cout<<output_l_bin<<std::endl;
-        std::cout<<"  "<<"ref_75:"<<std::endl;
+        std::cout<<"  "<<"ref_50_bit:"<<std::endl;
         std::cout<<ref_h_bin_1;
         std::cout<<ref_l_bin_1<<std::endl;
-        // std::cout<<"ref_48:"<<std::endl;
+        // std::cout<<"ref_75_50:"<<std::endl;
         // std::cout<<ref_h_bin_2;
         // std::cout<<ref_l_bin_2<<std::endl;
    }

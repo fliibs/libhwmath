@@ -1014,7 +1014,6 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     bool st2;
 
     uint32_t re_shift_num=shift_num+1;  //7bit
-    // uint32_t re_shift_num=shift_num;  //7bit
 
     uint32_t shift_1_ena;//control the long shift    
     shift_1_ena     = d_sign?27:0;
@@ -1031,7 +1030,7 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
 
     mp::cpp_int mant_shift_1;//75 bits,the short shift results;
 
-    mant_shift_1 = mant_add << 28;
+    mant_shift_1 = mant_add << 27;
 
     mant_lshift_in=d_sign?mant_shift_1:mant_add;
 
@@ -1112,7 +1111,6 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     bool mant_carry_1;          //mant add complement 1 carry
     bool rnd_carry;
 
-
     uint32_t mant_rnd_top;      //top 25 bits
     uint32_t mant_rnd_top_1;    //top 25 bits add comlement_1/carry_1
     uint32_t mant_rnd_top_1_c;  //top 25 bits add complement_1 and carry_1
@@ -1124,29 +1122,30 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
     mant_rnd_top    = cpp_int_cut_bit(mant_shift,25,51);
     D1.debug_printf("mant_rnd_top is %b",mant_rnd_top);
 
-    mant_rnd_last   = cpp_int_cut_bit(mant_shift,50,0);
-    D1.debug_printf("mant_rnd_last is %b",mant_rnd_last);
+    mant_rnd_last   = cpp_int_last_bit(mant_shift,50);
+    D1.debug_printf("mant_rnd_last is %lb",mant_rnd_last);
+
     mant_rnd_top_1  = mant_rnd_top + 1;
     mant_rnd_top_1_c= mant_rnd_top + 2;
     
     expo_shift_1    = expo_shift + 1;
 
-    mant_add_1      = (mant_rnd_top == mantissa_get_50_bit)&&complement;
+    mant_add_1      = (mant_rnd_last == mantissa_get_50_bit)&&complement; //mant_rnd_last is all 1 and complement is enable;
     expo_add_1      = (mant_rnd_top_1   & mantissa_26_bit) || ((!expo_shift) && (mant_rnd_top_1   & the_25_binary));
     expo_add_1_c    = (mant_rnd_top_1_c & mantissa_26_bit) || ((!expo_shift) && (mant_rnd_top_1_c & the_25_binary));
 
-    
     g               = mant_rnd_top   & 0x02;
     r               = mant_rnd_top   & 0x01;
     g_1             = mant_rnd_top_1 & 0x02;
     r_1             = mant_rnd_top_1 & 0x01;
+
     s               = (mant_rnd_last != 0) || complement || st1 ||st2;
 
     mant_carry      = (round_mode==3) ? ((r  && (g||s))   ?1:0) : 
                       (round_mode==2) ? ((!sign_add)      ?1:0) :
                       (round_mode==1) ? (sign_add         ?1:0) :
                        0;    
-    mant_carry_1    = (round_mode==3) ? (r_1              ?1:0) : 
+    mant_carry_1    = (round_mode==3) ? (r_1 && (g||s)    ?1:0) : 
                       (round_mode==2) ? ((!sign_add)      ?1:0) :
                       (round_mode==1) ? (sign_add         ?1:0) :
                        0;    
@@ -1171,6 +1170,8 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
             mant_rnd_unc    = mant_rnd_top;
             mant_rnd        = (mant_rnd_top>>1) & last_23_binary;
     }
+    D1.debug_printf("mant_add_1 is     :%u",static_cast<int>(mant_add_1));
+    D1.debug_printf("mant_add");
 
     //-------------------------------------------  
     //-----------mask 
@@ -1243,49 +1244,56 @@ Fp32 Fp32::fma(const Fp32 &a,const Fp32 &b,const Fp32 &c){
 }
 
 uint64_t Fp32::cpp_int_last_bit(const mp::cpp_int a,int cut_length){
-    std::ostringstream oss;
-    uint64_t result;
-    if(a!=0){
-        D1.debug_printf("into a==0");
-        oss<< std::setfill('0') << std::setw( 16 ) << std::hex << a;
-        // std::cout<<"oss:"<<oss.str()<<std::endl;
-        // std::cout<<"oss.str().length():"<<oss.str().length()<<std::endl;
-        std::string formatvalue = oss.str().substr(oss.str().length()-cut_length);
-        std::cout<<"formatvalue:"<<formatvalue<<std::endl;
-        result = std::stoull(formatvalue,nullptr,16);
-        printf("formatvalue:%llx\n",result);
+    int cut_bit_r       =cut_length;
+    mp::cpp_int cut_num =cut_length;
+    mp::cpp_int a_cut;
+    uint64_t    result;
+
+    for(int i=0;i<cut_bit_r;i++){
+        cut_num=(cut_num<<1)+1;
     }
-    else
-    {
-        D1.debug_printf("not into a!=0");
-        result=0;
-    }
+
+    a_cut  = a&(cut_num);
+    result = static_cast<uint64_t>(a_cut);
+
+    // D1.debug_printf("------------------");
+    // D1.debug_printf("----input cpp_int:");
+    // D1.print_cpp_int(a,"b");
+    // D1.debug_printf("----a_cut:");
+    // D1.print_cpp_int(a_cut,"b");
+    // D1.debug_printf("----result is : \n %lb",result);
+    // D1.debug_printf("------------------");
     return result;
 }
 
 uint32_t Fp32::cpp_int_cut_bit(const mp::cpp_int a, int cut_bit,int shift_bit){
-    mp::cpp_int a_in;
     int cut_bit_r=cut_bit;
+    mp::cpp_int shift_num=0;
     mp::cpp_int cut_num=0;
+    mp::cpp_int a_cut;
+    uint32_t result;
     for(int i=0;i<cut_bit;i++){
         cut_num=(cut_num<<1)+1;
     }
+
+    shift_num =a>>(shift_bit);
+    a_cut     =shift_num&cut_num;
+    result    =static_cast<uint32_t>(a_cut);
+    // std::string oss = mp::to_string(a_cut);
+    // uint32_t result = std::stoul(oss, nullptr, 10);
+    // D1.debug_printf("------------------");
+    // D1.debug_printf("----input cpp_int:");
+    // D1.print_cpp_int(a,"b");
+    // D1.debug_printf("----a_cut:");
+    // D1.print_cpp_int(a_cut,"b");
+    // D1.debug_printf("----oss is:");
+    // std::cout<<oss<<std::endl;
+    // D1.debug_printf("----result is : \n %b",result);
+    // D1.debug_printf("------------------");
     
-    a_in=a;
-    a_in=a_in>>(shift_bit);
-    a_in=a_in%(1<<cut_bit);
-
-    D1.debug_printf("------------------");
-    D1.debug_printf("cut_num:");
-    D1.print_cpp_int(cut_num,"b");
-    D1.debug_printf("a_in:");
-    D1.print_cpp_int(a_in,"b");
-    D1.debug_printf("------------------");
-
-    std::string oss = mp::to_string(a_in);
-    uint32_t result = std::stoul(oss, nullptr, 10);
     return result;
 }
+
 BIT_CAL(get_p,(a_last ^ b_last));
 BIT_CAL(get_g,(a_last & b_last));
 BIT_CAL(get_a,(!(a_last | b_last)));

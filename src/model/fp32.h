@@ -8,7 +8,7 @@
 #include <random>
 #include <limits>
 #include <cmath>
-#include "debug.h"
+#include "../test/debug.h"
 
 #define mantissa_64_bit         0x8000000000000000
 #define mantissa_50_bit         0x2000000000000
@@ -24,7 +24,7 @@
 #define mantissa_get_47_bit     0x7fffffffffff
 #define mantissa_get_48_bit     0xffffffffffff
 
-#define mantissa_l_75           0x800  //the upper 64 bits of mantissa 
+#define mantissa_l_75           0x800  //the upper 64 bits of mantissa
 
 #define exponent_sign           0x200
 #define exponent_num            0x1ff

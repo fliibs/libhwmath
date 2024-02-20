@@ -1,6 +1,6 @@
-#ifndef init_h
-#define init_h
-#include "fp32.h"
+#ifndef stimu_h
+#define stimu_h
+#include "../model/fp32.h"
 
 #define POINTER_SET(pointer,function) \
     float Ini_input::function(int argc, char **argv, const std::string&prefix){ \
@@ -47,5 +47,4 @@ private:
     RandFunc_Ptr c_get_rand_ptr;
 };
 
-
-#endif //init_h
+#endif //stimu_h

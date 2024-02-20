@@ -15,8 +15,8 @@ namespace mp = boost::multiprecision;
 #define mantissa_75_bit_h   0x800
 #define mantissa_48_bit_l   0x800000000000
 
-#define mant_get_75_bit_h   0xfff
-#define mant_get_50_bit_l   0xfff8000000000000
+#define mant_get_75_bit_h   0x7ff
+#define mant_get_50_bit_l   0xfffc000000000000
 
 
 class Debug {

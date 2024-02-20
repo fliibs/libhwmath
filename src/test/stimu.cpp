@@ -1,4 +1,4 @@
-#include"init.h"
+#include"stimu.h"
 
 Ini_input::Ini_input(){
     a_get_rand_ptr=&Ini_input::get_rand_reg;

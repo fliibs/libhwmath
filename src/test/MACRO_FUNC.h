@@ -1,6 +1,6 @@
 #ifndef MACRO_FUNC_H
 #define MACRO_FUNC_H
-#include "init.h"
+#include "stimu.h"
 #include <string>
 #include <fenv.h>
 

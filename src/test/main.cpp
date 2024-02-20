@@ -1,5 +1,5 @@
-#include "fp32.h"
-#include "reflib.h"
+#include "../model/fp32.h"
+#include "../model/reflib.h"
 #include "MACRO_FUNC.h"
 #include "pipe.h"
 #include <iostream>
@@ -14,7 +14,6 @@
 #include <cstdio>
 #include <stdlib.h>
 #include <string.h>
-
 #include <sstream>
 #include <chrono>
 #include <unistd.h>

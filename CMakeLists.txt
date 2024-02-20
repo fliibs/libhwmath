@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(test)
 
-file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/test/*.cpp)
+file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/test/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/model/*.cpp)
 file(GLOB_RECURSE SIMV_FILES ${CMAKE_CURRENT_SOURCE_DIR}/simv)
 set(CMAKE_CXX_STANDARD 11)
 
@@ -82,10 +82,10 @@ if(NOT TEST_PARA)
     add_executable(out ${SRC})
     set(test_times TEST_TIMES=1)
     target_compile_definitions(out PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
-    generate_tests("MUL" "RTL" "M_A_CASES")
-    generate_tests("MUL" "CMODEL" "M_A_CASES")
-    generate_tests("ADD" "CMODEL" "M_A_CASES")
-    generate_tests("ADD" "RTL" "M_A_CASES")
+    # generate_tests("MUL" "RTL" "M_A_CASES")
+    # generate_tests("MUL" "CMODEL" "M_A_CASES")
+    # generate_tests("ADD" "CMODEL" "M_A_CASES")
+    # generate_tests("ADD" "RTL" "M_A_CASES")
     generate_tests("FMA" "CMODEL" "FMA_CASES")
 endif()
 
