@@ -14,6 +14,7 @@ public:
     bool test_rtl       ;
     uint32_t round_mode ;  //0:zero 1:negative 2:positive 3:nearest                        
     Pipe(const std::string& executable) : mul_sv(executable, bp::std_in < to_sv, bp::std_out > from_sv){
+        
     }
     // int test_once(float num1,float num2,float num3);
     // void print(uint32_t int_in);

@@ -309,11 +309,11 @@ Fp32 Fp32::add(const Fp32 &a,const Fp32 &rhs,const Fp32 &dont_care){
 
 
     overflow    = expo_3>=255                                ;
-    a_is_0      = (a.exponent==0)         && (mantissa==0)     ;
+    a_is_0      = (a.exponent==0)       && (mantissa==0)     ;
     b_is_0      = (rhs.exponent==0)     && (rhs.mantissa==0) ;
-    a_is_inf    = (a.exponent==255)       && (mantissa==0)     ;
+    a_is_inf    = (a.exponent==255)     && (mantissa==0)     ;
     b_is_inf    = (rhs.exponent==255)   && (rhs.mantissa==0) ;
-    a_is_nan    = (a.exponent==255)       && (mantissa!=0)     ;
+    a_is_nan    = (a.exponent==255)     && (mantissa!=0)     ;
     b_is_nan    = (rhs.exponent==255)   && (rhs.mantissa!=0) ;
 
     r_is_nan    = a_is_nan | b_is_nan                        ;

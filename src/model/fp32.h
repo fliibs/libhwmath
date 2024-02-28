@@ -1,4 +1,3 @@
-
 #ifndef fp32_h
 #define fp32_h
 
