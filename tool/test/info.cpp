@@ -60,7 +60,7 @@ else{
 void Info::print_cpp_int(const mp::cpp_int& num,const std::string& str) {
 if(debug){
     uint64_t ref_h_1=0;
-    uint64_t ref_l_1=mantissa_get_50_bit;
+    uint64_t ref_l_1=mantissa_48_bit_l;
     uint64_t ref_h_2=mant_get_75_bit_h;
     uint64_t ref_l_2=mant_get_50_bit_l;
     std::bitset<64> ref_h_bin_1(ref_h_1);
@@ -91,9 +91,10 @@ if(debug){
     std::bitset<64> output_l_bin(output_l);
 
     if(str==check_string){
+        std::cout<<"  "<<"cpp_int:"<<std::endl;
         std::cout<<output_h_bin;
         std::cout<<output_l_bin<<std::endl;
-        std::cout<<"  "<<"ref_50_bit:"<<std::endl;
+        std::cout<<"  "<<"ref_48_bit:"<<std::endl;
         std::cout<<ref_h_bin_1;
         std::cout<<ref_l_bin_1<<std::endl;
    }

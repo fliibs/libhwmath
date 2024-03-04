@@ -14,18 +14,7 @@ public:
         }
         else{
             std::cerr << "assertion failed"<<std::endl;
-            printf("input one is ---------------\n");
-            std::cout<<"sign : "<<input1.sign<<std::endl;
-            std::cout<<"expo : "<<input1.expo<<std::endl;
-            std::cout<<"mant : "<<input1.mant<<std::endl;
-            printf("----------------------------\n");
-            printf("input two is ---------------\n");
-            std::cout<<"sign : "<<input2.sign<<std::endl;
-            std::cout<<"expo : "<<input2.expo<<std::endl;
-            std::cout<<"mant : "<<input2.mant<<std::endl;
-            printf("----------------------------\n");
             fail=1;
-            std::terminate();
         }
         return fail;
     }

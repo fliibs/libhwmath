@@ -9,6 +9,7 @@ module mul_top#(
     input  logic [1 : 0]                               rnd ,
     output logic [SIGN_W + EXPO_W + MANT_W -1 : 0]     res  
 );
+
 logic [SIGN_W + EXPO_W + MANT_W -1 : 0] a_reg_in;
 logic [SIGN_W + EXPO_W + MANT_W -1 : 0] b_reg_in;
 logic [1 : 0]                           rnd_reg_in;

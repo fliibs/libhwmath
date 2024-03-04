@@ -1,13 +1,13 @@
 //cmodel_impl.h
-#ifndef cmodel_impl_h
-#define cmodel_impl_h
+#ifndef CMODEL_IMPL_H
+#define CMODEL_IMPL_H
 #include <iostream>
 #include "cal.h"
 #include "struct.h"
 #include <cmath>
 
 template<typename T1, typename T2, typename T3, typename T4>
-T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
+T4 Cmodel<T1,T2,T3,T4>::mul(const T1& a, const T2& b, const T3& c,const int& rnd_mode) {
     //only T3 available
     T4 result;
     uint32_t    a_expo        = a.expo;
@@ -68,11 +68,14 @@ T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
     a_expo_max    = set_expo_max(a.expo_w);
     b_expo_max    = set_expo_max(b.expo_w);
     res_expo_max  = set_expo_max(result.expo_w);
-    expo_1        = a_expo - static_cast<uint32_t>(a_expo_is_0) - (a_expo_max/2) \
-                    b_expo - static_cast<uint32_t>(b_expo_is_0) - (b_expo_max/2) \
+    expo_1        = a_expo - static_cast<uint32_t>(a_expo_is_0) - (a_expo_max/2) 
+                    + b_expo - static_cast<uint32_t>(b_expo_is_0) - (b_expo_max/2) 
                     +(res_expo_max/2); 
 
     //-------------generate mantissa
+    info1.debug_printf("--------------------------------");
+    info1.debug_printf("-------generate mantissa--------");
+    info1.debug_printf("--------------------------------");
     mp::cpp_int a_mant_total;
     mp::cpp_int b_mant_total;
     a_mant_total         = ((static_cast<mp::cpp_int>(1-a_expo_is_0))<<a.mant_w) + a_mant;
@@ -82,16 +85,20 @@ T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
     mp::cpp_int mant_1_str;    //store mant_1 
     int mant_av_nums;          //available mant_nums;in fp32 * fp32,it's 47
     int mant_exd_nums;         //bit that exceeding the mant_av_nums;in fp32*32,it's 48
-    mp::cpp_int mant_av_bit;
+    mp::cpp_int mant_av_bits;
     mp::cpp_int mant_exd_top_bit;
 
     mant_1               = a_mant_total * b_mant_total;
+    info1.print_cpp_int(a_mant_total,"b");
+    info1.print_cpp_int(b_mant_total,"b");
+    info1.print_cpp_int(mant_1,"b");
     mant_1_str           = mant_1;
-    mant_av_nums         = 1+a.expo_w+b.expo_w;             //
+    mant_av_nums         = 1+a.mant_w+b.mant_w;             //
     mant_av_bits         = get_mant_av_bits(mant_av_nums);  //the avail mant bits of mant all set to one; in fp32 * fp32 it's 47 bits all equaling one 
     mant_exd_nums        = mant_av_nums+1;                  
     mant_exd_top_bit     = get_mant_av_top_bit(mant_exd_nums);
     
+    info1.debug_printf("mant_av_nums is %d",mant_av_nums);
     int zero_nums;
     zero_nums            = get_zero_nums(&mant_1,mant_av_nums);
     
@@ -111,23 +118,26 @@ T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
     bool con_expo_sign_0;
     bool con_mant_exd;
     con_expo_sign_0 = !(expo_1 & expo_sign_bit);     //the expo_1 sign is zero
-    con_mant_exd    = mant_1_s & mant_exd_top_bit;   //the mant exceed mant_av_nums
-    uint32_t expo_num;
-    expo_num      =  expo_exd_max && expo_1;         //
+    con_mant_exd    = ((mant_1_str & mant_exd_top_bit)!=0);   //the mant exceed mant_av_nums
+    uint32_t expo_nums;
+    expo_nums      =  expo_exd_max && expo_1;         //
 
     //-------shift relevant
     uint32_t l_shift; // left shift nums
     uint32_t r_shift; // right shift nums
 
+    info1.debug_printf("expo_nums is %b",expo_nums);
+    info1.debug_printf("zero_nums is %b",zero_nums);
+
     if((con_mant_exd) && (con_expo_sign_0)){
         info1.debug_printf("into shift right");
         expo_2      = expo_1+1;
-        mant_2      = mant_s>>1;
-        s_bit_rcd   = mant_s&0x01;
+        mant_2      = mant_1_str>>1;
+        s_bit_rcd   = mant_1_str&0x01;
     }
     else{
         info1.debug_printf("not into shift right");   
-        if(cond_expo_sign_0 && (expo_num>zero_nums) && (mant_1 & mant_av_bits)){
+        if(con_expo_sign_0 && (expo_nums>zero_nums) && (mant_1 & mant_av_bits)){
             info1.debug_printf("into 0.xxxx and normalized");
             expo_2   = expo_1 - zero_nums;
             mant_2   = mant_1;
@@ -135,7 +145,7 @@ T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
         else{
             info1.debug_printf("into 0.xxxx and denormalized");
             expo_2   = 0;
-            if(cond_expo_sign_0 && expo_num) {
+            if(con_expo_sign_0 && expo_nums) {
                 l_shift = expo_1-1;
                 mant_2  = mant_1_str<<l_shift;
             }
@@ -182,7 +192,7 @@ T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
                     (rnd_mode==2)? ((!result.sign && (!a_is_0) && (!b_is_0) && (r||s||(expo_2))) ? 1 : 0):
                     (rnd_mode==1)? ((result.sign  && (!a_is_0) && (!b_is_0) && (r||s||(expo_2))) ? 1 : 0):
                     0;
-    mant_rnd      = (mant_2>>(mant_av_nums-result.mant_w-1))? + static_cast<mp::cpp_int>(mant_carry);
+    mant_rnd      = (mant_2>>(mant_av_nums-result.mant_w-1)) + static_cast<mp::cpp_int>(mant_carry);
     mp::cpp_int int_2_mask;
     mp::cpp_int int_1_mask;
     mp::cpp_int res_mant_mask;
@@ -192,7 +202,12 @@ T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
 
 
     expo_3        = (mant_rnd & int_2_mask) || ((!expo_2) && (mant_rnd & int_1_mask)) ? (expo_2 + 1) : expo_2 ;
-    mant_3        = (mant_rnd & int_2_mask) ? ((mant_rnd>>1) & res_mant_mask) : (mant_rnd & res_mant_mask);
+    
+    mp::cpp_int mant_rest_left;
+    mp::cpp_int mant_rest;
+    mant_rest_left=(mant_rnd>>1) & res_mant_mask;
+    mant_rest     = mant_rnd & res_mant_mask;
+    mant_3        = (mant_rnd & int_2_mask) ? mant_rest_left : mant_rest;
     
     //------------generating output,it seems like inf and nan can't be optimized into the current process.
     info1.debug_printf("---------------------------");
@@ -224,27 +239,30 @@ T4 c_lib::mul(const T1& a, const T2& b, const T3& c) {
     if(is_inf_nan){
         result.sign = sign_nan;
         result.expo = res_expo_max;
-        result.mant = mant_nan;
+        result.mant = static_cast<uint64_t>(mant_nan);
     }
     else{
         if(overflow){
             int mode_1  = rnd_mode & 0x02;
             int mode_0  = rnd_mode & 0x01;
             result.expo = ((mode_1 && (!result.sign)) || (mode_0 && result.sign)) ? res_expo_max : (res_expo_max-1);
-            result.mant = ((mode_1 && (!result.sign)) || (mode_0 && result.sign)) ? 0   : res_mant_mask;  
+            result.mant = ((mode_1 && (!result.sign)) || (mode_0 && result.sign)) ? 0   : static_cast<uint64_t>(res_mant_mask);  
         }
         else{
             result.expo = expo_3;
-            result.mant = mant_3;
+            result.mant = static_cast<uint64_t>(mant_3);
         }
     }
     return result;
 }    
 
 template<typename T1, typename T2, typename T3, typename T4>
-T4 c_lib::add(const T1& a, const T2& b, const T3& c) {
+T4 Cmodel<T1,T2,T3,T4>::add(const T1& a, const T2& b, const T3& c,const int& rnd_mode) {
     //only T3 available
     T4 result;
+    // printf("into cmodel add!!!!!!!!!!\n");
+    result.print();
+    return result;
 }   
 
-#endif //cmodel_impl_h
+#endif //CMODEL_IMPL_H

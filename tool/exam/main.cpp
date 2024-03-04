@@ -2,21 +2,29 @@
 #include <iostream>
 #include <unordered_map>
 #include <functional>
-#include "my_ref.h"
+// #include "my_ref.h"
 int main(int argc, char* argv[]) {
-    ChildRef my_ref_1;
-    if (argc >= 2) {
-        std::string functionName = argv[1];
-        // 查找函数并调用
-        auto it = my_ref_1.functionTable.find(functionName);
-        if (it != my_ref_1.functionTable.end()) {
-            it->second(); // 调用函数
-        } else {
-            std::cout << "Function not found\n";
-        }
-    } else {
-        std::cout << "Usage: " << argv[0] << " <function_name>\n";
-    }
+    // ChildRef my_ref_1;
+    // if (argc >= 2) {
+    //     std::string functionName = argv[1];
+    //     // 查找函数并调用
+    //     auto it = my_ref_1.functionTable.find(functionName);
+    //     if (it != my_ref_1.functionTable.end()) {
+    //         it->second(); // 调用函数
+    //     } else {
+    //         std::cout << "Function not found\n";
+    //     }
+    // } else {
+    //     std::cout << "Usage: " << argv[0] << " <function_name>\n";
+    // }
+    float a=134197128.000000;
+    double b=-6161830486545459984540.000000;
+    float c;
+    c= a * b;
+    double d;
+    d= a *b;
+    printf("c is %f\n",c);
+    printf("d is %f\n",d);
 
     return 0;
 }
