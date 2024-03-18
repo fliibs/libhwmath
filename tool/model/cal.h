@@ -21,11 +21,13 @@ bool        expo_whe_max(uint32_t expo,int expo_w);
 mp::cpp_int get_mant_av_bits(int av_nums );
 mp::cpp_int get_mant_av_top_bit(int av_nums);
 mp::cpp_int get_nan(int in_num,int out_num, mp::cpp_int in_mant);
-mp::cpp_int get_rnd_g_r(int mant_av_nums,int res_mant_w);
+// mp::cpp_int get_rnd_g_r(int mant_av_nums,int res_mant_w);
 mp::cpp_int get_rnd_g(int mant_av_nums,int res_mant_w);
 mp::cpp_int get_rnd_r(int mant_av_nums,int res_mant_w);
 
 int         get_zero_nums(mp::cpp_int *mant_in,int mant_av_nums);
 int         detect_one(mp::cpp_int *mant_in,int width,mp::cpp_int mant_av_top_bit);
 
+//for pipe 
+uint64_t    get_mask(const int&width);
 #endif //cal_h

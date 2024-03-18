@@ -5,6 +5,7 @@
 #include <iostream>
 #include "../if/if.h"
 #include <fenv.h>
+#include "../if/if.h"
 
 #define SET_RND_MODE(num) \
     switch (num) { \
@@ -22,36 +23,40 @@
             break; \
     } \
 
-template<typename T_FP_a,typename T_FP_b, typename T_FP_c,typename T_FP_res, typename T_flt>
 class Ref{
 public:
     IF if1;  
-    using Ref_Ptr = std::function<T_FP_res(T_FP_a, T_FP_b, T_FP_c, int)>;
-    T_FP_res add(T_FP_a a, T_FP_b b,T_FP_c c,int rnd_mode){
-        SET_RND_MODE(rnd_mode);
-        T_flt     a_flt  = if1.fp2float<T_FP_a,T_flt>(a);
-        T_flt     b_flt  = if1.fp2float<T_FP_b,T_flt>(b);
-        T_flt     res_flt= a_flt+b_flt;
-        T_FP_res  res    = if1.float2fp<T_FP_res,T_flt>(res_flt);
+    using Ref_Ptr = std::function<void(const FpBase&, const FpBase&, const FpBase&, const int&, FpBase*)>;
+   
+    template <typename T>
+    T convert2flt(const FpBase& a){
+        T res;
+        if(a.expo_w==5){
+            half res_1=if1.Fp16toHalf(a);
+            res=res_1;
+        }
+        else if(a.expo_w==8){
+            float res_2=if1.Fp32toFloat(a);
+            res=res_2;
+        }
+        else if(a.expo_w==11){
+            double res_3;
+            res_3=if1.Fp64toDouble(a);
+            res=res_3;
+        }
+        else{
+            printf("intput is not among Fpbase");
+            std::terminate();
+        }
         return res;
     }
-    T_FP_res mul(T_FP_a a, T_FP_b b,T_FP_c c,int rnd_mode){
-        SET_RND_MODE(rnd_mode);
-        T_flt     a_flt  = if1.fp2float<T_FP_a,T_flt>(a);
-        T_flt     b_flt  = if1.fp2float<T_FP_b,T_flt>(b);
-        T_flt     res_flt= a_flt*b_flt;
-        T_FP_res  res    = if1.float2fp<T_FP_res,T_flt>(res_flt);
-        return res;
-    }
-    T_FP_res fma(T_FP_a a, T_FP_b b,T_FP_c c,int rnd_mode){
-        SET_RND_MODE(rnd_mode);
-        T_flt     a_flt  = if1.fp2float<T_FP_a,T_flt>(a);
-        T_flt     b_flt  = if1.fp2float<T_FP_b,T_flt>(b);
-        T_flt     c_flt  = if1.fp2float<T_FP_c,T_flt>(c);
-        T_flt     res_flt= a_flt*b_flt+c_flt;
-        T_FP_res  res    = if1.float2fp<T_FP_res,T_flt>(res_flt);
-        return res;
-    }
+
+    void add(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
+
+    void mul(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
+  
+    void fma(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
+
     void addFunction(const std::string& functionName, Ref_Ptr func) {
         functionTable[functionName] = func;
     }
@@ -59,10 +64,10 @@ public:
         functionTable.erase(functionName);
     }
     std::unordered_map<std::string, Ref_Ptr> functionTable = {
-        {"add"            ,std::bind(&Ref::add, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)},
-        {"mul"            ,std::bind(&Ref::mul, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)},
-        {"fma"            ,std::bind(&Ref::fma, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)},
-        {"defaultfunction",std::bind(&Ref::add, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)}
+        {"add"            ,std::bind(&Ref::add, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
+        {"mul"            ,std::bind(&Ref::mul, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
+        {"fma"            ,std::bind(&Ref::fma, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
+        {"defaultfunction",std::bind(&Ref::add, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)}
     };
 };
 #endif

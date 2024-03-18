@@ -91,12 +91,12 @@ if(debug){
     std::bitset<64> output_l_bin(output_l);
 
     if(str==check_string){
-        std::cout<<"  "<<"cpp_int:"<<std::endl;
+        // std::cout<<"  "<<"cpp_int:"<<std::endl;
         std::cout<<output_h_bin;
         std::cout<<output_l_bin<<std::endl;
-        std::cout<<"  "<<"ref_48_bit:"<<std::endl;
-        std::cout<<ref_h_bin_1;
-        std::cout<<ref_l_bin_1<<std::endl;
+        // std::cout<<"  "<<"ref_48_bit:"<<std::endl;
+        // std::cout<<ref_h_bin_1;
+        // std::cout<<ref_l_bin_1<<std::endl;
    }
    else{
         std::cout<<output_h;

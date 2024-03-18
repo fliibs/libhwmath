@@ -1,0 +1,20 @@
+
+Warning-[DBG_FLAG_DEP] Debug Option is being Deprecated
+  The '-fsdb' debug-related option is being deprecated and will no longer be 
+  supported in a future release.
+  Please recompile using the '-debug_access<+options>' switch and incremental 
+  options as required.  Recommended options are '-debug_access' for 
+  post-process debug, '-debug_access+classdbg' for testbench debug, and 
+  '-debug_access+all' for all debug capabilities.  Refer the VCS user guide 
+  for more granular options for debug control under the switch '-debug_access'
+  and refer to '-debug_region' for region control.
+
+Command: vcs -full64 -cpp g++-4.8 -cc gcc-4.8 -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps \
+-full64 -debug_all -sverilog -l compile.log -f ../tb/filelist.f +define+RTL_DEBUG \
+-fsdb
+*** Using c compiler gcc-4.8 instead of cc ...
+
+Error-[P1ARGS-CANTOPN-F] Cannot open file
+  Unable to open '../tb/filelist.f' due to 'No such file or directory'.
+  Please fix the reason mentioned above and continue.
+

@@ -14,7 +14,7 @@ module mul_fixcal #(
     output logic                    a_is_nan  ,
     output logic                    b_is_nan  ,
     output logic                    a_is_q    ,
-    output logic                    b_is_q    , 
+    output logic                    b_is_q    ,
     output logic                    r_isnan   ,
     output logic                    is_inf_nan,
     output logic                    r_is0nan  
@@ -30,9 +30,8 @@ assign a_is_nan     =  (&a_expo)&&(|a_mant)                 ;
 assign b_is_nan     =  (&b_expo)&&(|b_mant)                 ;
 assign a_is_inf     =  (&a_expo)&&(!(|a_mant))              ;
 assign b_is_inf     =  (&b_expo)&&(!(|b_mant))              ;
-
-assign a_is_q       = a_mant[MANT_W-1]                      ;
-assign b_is_q       = b_mant[MANT_W-1]                      ;
+assign a_is_q       =  a_expo[EXPO_W - 1]                   ;
+assign b_is_q       =  b_expo[EXPO_W - 1]                   ;
 
 assign r_isnan      =  a_is_nan    || b_is_nan || r_is0nan                       ;
 assign is_inf_nan   =  a_is_nan    || b_is_nan || a_is_inf    || b_is_inf        ;

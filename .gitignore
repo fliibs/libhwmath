@@ -33,6 +33,8 @@
 
 build*
 nouse
+exam*
+exam
 
 CMakeCache.txt
 CMakeFiles
@@ -42,4 +44,4 @@ Testing
 
 .vscode
 makefile
-exam
+out 

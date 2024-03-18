@@ -1,6 +1,6 @@
 module mul_nan_judge #(
-    parameter EXPO_W=8,
-    parameter MANT_W=23
+    parameter int unsigned EXPO_W=8,
+    parameter int unsigned MANT_W=23
 ) (
     input  logic                     r_isnan    ,
     input  logic                     r_is0nan   ,

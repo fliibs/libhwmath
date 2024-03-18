@@ -2,109 +2,135 @@ cmake_minimum_required(VERSION 3.22)
 
 project(test)
 
-file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/src/test/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/model/*.cpp)
+#cmodel and c verification platform
+file(GLOB_RECURSE SRC ${CMAKE_CURRENT_SOURCE_DIR}/tool/*.cpp)
+
+#rtl model
 file(GLOB_RECURSE SIMV_FILES ${CMAKE_CURRENT_SOURCE_DIR}/simv)
+
 set(CMAKE_CXX_STANDARD 11)
 
-set(RND_MODE TEST_RND_NEAREST TEST_RND_ZERO TEST_RND_POS TEST_RND_NEG)
-set(M_A_CASES TEST_ZERO TEST_INF TEST_ZERO_INF TEST_1_NAN TEST_REG)
-set(FMA_CASES TEST_REG) 
+####input argc relevant
+#set rnd mode
+set(Rnd_Mode Rnd_Nearest Rnd_Zero Rnd_Pos Rnd_Neg)
 
-if (NOT DEFINED DEBUG_C)
-    set(DEBUG_C OFF)
+#set corner case
+set(Corner_Case 1_ZERO 1_INF ZERO_INF 1_NAN All_REG)
+
+#set fp type
+set (Fp_type fp64 fp32 fp16)
+# set (Fp_type fp64)
+
+#set test_times 
+if(NOT DEFINED test_times)
+    set(test_times 10000)
 endif()
 
-if (NOT DEFINED TEST_PARA)
-    set(TEST_PARA OFF)
-endif()
+set(test_times_arg "test_times=${test_times}")
 
-if (NOT DEFINED PARA_RND_MODE)
-    set(PARA_RND_MODE TEST_RND_NEAREST)
-endif()
+#message 
+message(${SRC})
 
-if (NOT DEFINED PARA_CONNER)
-    set(PARA_CONNER TEST_REG)
-endif()
+message(${SIMV_FILES})
 
-message(STATUS "simv_files is ${SIMV_FILES}")
+message(${test_times_arg})
 
+
+#set testing 
 enable_testing()
-######debug set
-if(DEBUG_C)
-    set(debug_c "DEBUG_C")
-else()
-    set(debug_c)
-endif()
-#####FUNCTION 
-#####fp32_model:ADD MUL FMA
-#####test_model:RTL CMODEL
-#####TEST_CORNER:M_A_CASES FMA_CASES 
-function(generate_tests fp32_model test_model TEST_CORNER)
-    if(test_model STREQUAL RTL)
-        set(model_input TEST_RTL)
-    else()
-        set(model_input)
-    endif()
 
-    set(test_counter 1)
+#set executable 
+add_executable(out ${SRC})
 
-    foreach(namespace ${RND_MODE})
-        foreach(case ${${TEST_CORNER}})
-            if (case STREQUAL "TEST_ZERO")
-                set(case_arg "in1=ZERO" "in2=REG" "in3=REG")
-            elseif (case STREQUAL "TEST_INF")
-                set(case_arg "in1=INF" "in2=REG" "in3=REG")
-            elseif (case STREQUAL "TEST_ZERO_INF")
-                set(case_arg "in1=ZERO" "in2=INF" "in3=REG")
-            elseif (case STREQUAL "TEST_1_NAN")
-                set(case_arg "in1=INF" "in2=REG" "in3=REG")
-            elseif (case STREQUAL "TEST_REG")
-                set(case_arg "in1=REG" "in2=REG" "in3=REG")
-            endif()
+target_compile_definitions(out PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+target_compile_options(out PRIVATE "-g")
 
-            set(test_input)
-            foreach(arg ${case_arg})
-                list(APPEND test_input ${arg})
-            endforeach()
-
-            message(STATUS "test_input is ${test_input}")
-
-            add_test(NAME "${fp32_model}_${test_model}_${test_counter}" COMMAND out ${namespace} ${test_input} TEST_MONTE ${fp32_model} ${model_input} ${test_times} ${debug_c})
-            set_tests_properties("${fp32_model}_${test_model}_${test_counter}" PROPERTIES LABELS "${namespace}_${test_input}")
-            math(EXPR test_counter "${test_counter} + 1")  
-
-        endforeach(case ${CASE})
-    endforeach(namespace ${RND_MODE})
-endfunction()
-    
-#####TESTS GENRATES
-if(NOT TEST_PARA)
-    add_executable(out ${SRC})
-    set(test_times TEST_TIMES=1)
-    target_compile_definitions(out PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
-    # generate_tests("MUL" "RTL" "M_A_CASES")
-    # generate_tests("MUL" "CMODEL" "M_A_CASES")
-    # generate_tests("ADD" "CMODEL" "M_A_CASES")
-    # generate_tests("ADD" "RTL" "M_A_CASES")
-    generate_tests("FMA" "CMODEL" "FMA_CASES")
-endif()
-
-####TEST the same corner for 16 times in parallel
-if(TEST_PARA)
-    add_executable(out ${SRC})
-    target_compile_definitions(out PRIVATE 
-    TEST_TIMES=300000
-    SPECIAL_TEST_TIMES=100000
-    )
-    target_compile_definitions(out PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
-    SET(UPPER_LIMIT 16)
-    SET(CASES_P)
-    foreach(i RANGE 1 ${UPPER_LIMIT})
-        list(APPEND CASES_P "${PARA_RND_MODE}_${PARA_CONNER}_${i}")
+#function
+function(list_to_str list_var)
+    set(str_var)
+    foreach(list_item ${${list_var}})
+        list(APPEND str_var ${list_item})
+        set(str_var_out ${str_var} PARENT_SCOPE)
     endforeach()
-    foreach(case ${CASES_P})
-        add_test(NAME PARA_${case} COMMAND out ${PARA_RND_MODE} ${PARA_CONNER} TEST_RTL TEST_MONTE)
-    endforeach(case ${CASES_P})
-endif(TEST_PARA)
+endfunction()
 
+function(map_rnd_mode rnd_mode)
+    if (rnd_mode STREQUAL "Rnd_Nearest")
+        set(arg "rnd_mode=3")
+    elseif (rnd_mode STREQUAL "Rnd_Zero")
+        set(arg "rnd_mode=0")
+    elseif (rnd_mode STREQUAL "Rnd_Pos")
+        set(arg "rnd_mode=1")
+    elseif (rnd_mode STREQUAL "Rnd_Neg")
+        set(arg "rnd_mode=2")
+    else()
+        message(FATAL_ERROR "Invalid rnd mode: ${rnd}")
+    endif()
+    set(rnd_arg ${arg} PARENT_SCOPE)
+endfunction()
 
+function(map_corner corner )
+    if (corner STREQUAL "1_ZERO")
+        set(arg "corner1=zero" "corner2=reg" "corner3=reg")
+    elseif (corner STREQUAL "1_INF")
+        set(arg "corner1=inf" "corner2=reg" "corner3=reg")
+    elseif (corner STREQUAL "ZERO_INF")
+        set(arg "corner1=zero" "corner2=inf" "corner3=reg")
+    elseif (corner STREQUAL "1_NAN")
+        set(arg "corner1=nan" "corner2=reg" "corner3=reg")
+    elseif (corner STREQUAL "All_REG")
+        set(arg "corner_all=reg")
+    endif()
+    set(corner_arg ${arg} PARENT_SCOPE)
+endfunction()
+
+function(map_type type)
+    if (type STREQUAL "fp64")
+        set(arg "type_all=fp64")
+    elseif (type STREQUAL "fp32")
+        set(arg "type_all=fp32")
+    elseif (type STREQUAL "fp16")
+        set(arg "type_all=fp16")
+    else()
+        message(STATUS "no input type arg")
+    endif()
+    set(type_arg ${arg} PARENT_SCOPE)
+endfunction()
+
+function(generate_test fp_mode test_model test_rnd test_corner test_type)
+    if(test_model STREQUAL rtl)
+        set(checker_arg "checker1=cmodel" "checker2=rtl")
+    else()
+        set(checker_arg "checker1=ref" "checker2=cmodel")
+    endif()
+    list_to_str("checker_arg")
+    set(checker_input ${str_var_out})
+
+    #fp type
+    foreach(type ${${test_type}})
+        map_type(${type})
+        set(test_counter 1)
+
+        #rnd_mode
+        foreach(rnd ${${test_rnd}})
+            map_rnd_mode(${rnd})
+
+            #corner case
+            foreach(corner ${${test_corner}})
+                map_corner(${corner})
+                list_to_str("corner_arg")
+                set(corner_input ${str_var_out})
+
+                #add tests
+                add_test(NAME ${fp_mode}_${test_model}_${type}_${test_counter} COMMAND out ${checker_input} ${rnd_arg} ${corner_input} ${type_arg} ${test_times_arg} ${fp_mode} "assert")
+                # message(STATUS "${fp_mode}_${test_model}_${type}_${test_counter}")
+                # message(STATUS "${checker_input} ${rnd_arg} ${corner_input} ${type_arg} ${test_times_arg} ${test_model} assert")
+                math(EXPR test_counter "${test_counter} + 1" OUTPUT_FORMAT DECIMAL)
+                endforeach()
+            endforeach() 
+    endforeach()
+endfunction()
+
+generate_test("mul" "cmodel" "Rnd_Mode" "Corner_Case" "Fp_type")
+include(CTestCustom.cmake)
+ 

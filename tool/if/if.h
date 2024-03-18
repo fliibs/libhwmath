@@ -1,46 +1,24 @@
 #ifndef IF_H
 #define IF_H
-#include "../model/cal.h"
 #include "../test/info.h"
+#include "../model/struct.h"
+template <typename T>
+T set_mask(int width){
+    T res=0;
+    for(int i=0;i<width;i++){
+        res = 1+(res<<1);
+    }
+    return res;
+}
+
 class IF{
 public:
-    Info info1;
-    Fp32 floatTOFp32(const float&a){
-        Fp32 res;
-        uint32_t bits = *(uint32_t*)&a; // get the binary representation of the float
-        info1.print_cpp_int(bits,"b");
-        res.sign = bits >> 31;          // get the sign bit
-        res.expo = bits >> 23 & 0xff; // get the exponent bit
-        res.mant = bits & 0x7fffff;     // get the mantissa bit
-        printf("res.sign is %d\n",res.sign);
-        printf("res.expo is %d\n",res.expo);
-        printf("res.mant is %d\n",res.mant);
-        return res;
-    }
-    float fp32tofloat(const Fp32& a){
-        uint32_t bits=0;
-        bits |= a.sign << 31;         // set the sign bit
-        bits |= a.expo << 23;     // set the exponent bit
-        bits |= a.mant;           // set the mantissa bit
-        float x = *(float*)&bits;   // get the float value
-        // printf("a.sign is %d\n",a.sign);
-        // printf("a.expo is %d\n",a.expo);
-        // printf("a.mant is %d\n",a.mant);
-        info1.print_cpp_int(bits,"b");
-        return x;
-    }
-    template <typename T_fp,typename T_flt>
-    T_flt fp2float(const T_fp& fp_num);
-
-    template <typename T_fp,typename T_flt>
-    T_fp float2fp(const T_flt&float_num);
-     
-    // template <typename T1,typename T2>
-    // T2 int2fp(const T1 & int_num);
-    // template <typename T1,typename T2>
-    // T2 fp2int(const T1 & fp_num);
-
+    Info    info1;
+    float   Fp32toFloat(const FpBase& FP_num);
+    double  Fp64toDouble(const FpBase& FP_num);
+    half    Fp16toHalf(const FpBase& FP_num);
+    FpBase  FloattoFp32(const float& flt_num);
+    FpBase  DoubletoFp64(const double& flt_num);
+    FpBase  HalftoFp16(const half& flt_num);
 };
-#include "if_impl.h"
-
 #endif

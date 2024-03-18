@@ -1,6 +1,6 @@
 #include "cal.h"
-
-//expont
+#include "../test/info.h"
+//exponent
 uint32_t set_expo_max(int expo_w){
     uint32_t result=0;
     for(int i=0;i<expo_w;i++){
@@ -38,8 +38,8 @@ mp::cpp_int get_mant_av_top_bit(int av_nums){
 }
 
 mp::cpp_int get_nan(int in_num,int out_num, mp::cpp_int in_mant){
-    mp::cpp_int result;
-    int         dif;
+    mp::cpp_int result=0;
+    int         dif; 
     mp::cpp_int cmpl_bits;
     mp::cpp_int mant_cmpl;
     mp::cpp_int mant_lack1_bits;
@@ -55,17 +55,18 @@ mp::cpp_int get_nan(int in_num,int out_num, mp::cpp_int in_mant){
     else
         mant_cmpl   = in_mant;
 
-    mant_lack1_bits = get_mant_av_bits(out_num);
-    result          = (1<<out_num) + mant_lack1_bits;
+    mant_lack1_bits = get_mant_av_top_bit(out_num);
+    
+    result          = mant_lack1_bits | mant_cmpl;
 
     return result;
 }
 
-get_rnd_bit(get_rnd_g_r,i<=res_mant_w);
+// get_rnd_bit(get_rnd_g_r,i<=res_mant_w);
 
 get_rnd_bit(get_rnd_g,i==(mant_av_nums-res_mant_w-1));
  
-get_rnd_bit(get_rnd_r,i==(mant_av_nums-res_mant_w-2));
+get_rnd_bit(get_rnd_r,i==(mant_av_nums-res_mant_w));
 
 //cal
 int get_zero_nums(mp::cpp_int *mant_in,int mant_av_nums){
@@ -77,8 +78,11 @@ int get_zero_nums(mp::cpp_int *mant_in,int mant_av_nums){
     mant_av_top_bit   = get_mant_av_top_bit(mant_av_nums);
     int ary_w       =0; 
     int zero_num_bit=0;
+    int pow_expo    =0;
+    double ary_w_dl;
     for (int i=0 ; i< zero_nums_len;i++){
-        ary_w           = std::pow(2,(zero_nums_len-1-i));
+        pow_expo        = zero_nums_len-1-i;
+        ary_w           = std::ceil(std::pow(2,pow_expo));
         zero_num_bit    = !detect_one(&*mant_in,ary_w,mant_av_top_bit);
         zero_nums       = (zero_nums<<1) + (zero_num_bit);
     }
@@ -95,4 +99,12 @@ int detect_one(mp::cpp_int *mant_in,int width,mp::cpp_int mant_av_top_bit){
     }
     (*mant_in)           = one_exist ? mant_rcd : (*mant_in);
     return one_exist;
+}
+
+uint64_t get_mask(const int&width){
+    uint64_t res=0;
+    for(int i=0;i<width;i++){
+        res = 1+(res<<1);
+    }   
+    return res;
 }
