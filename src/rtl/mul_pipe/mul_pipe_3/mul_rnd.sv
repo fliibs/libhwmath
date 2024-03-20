@@ -28,8 +28,10 @@ assign r         =  mant_2[MANT_W-1]                         ;
 assign s         =  (|mant_2[MANT_W-2:0]) | bit_s_record     ;
       
 assign carry     =  (rnd==2'b11) ? ((r        && (g || s))                                            ? 1'b1 : 1'b0)  :
-                    (rnd==2'b10) ? ((!sign_1) && (a_is_n0) && (b_is_n0) && (r || s || (!(|expo_2 )))  ? 1'b1 : 1'b0)  :
-                    (rnd==2'b01) ? (sign_1    && (a_is_n0) && (b_is_n0) && (r || s || (!(|expo_2 )))  ? 1'b1 : 1'b0)  :
+                    // (rnd==2'b10) ? ((!sign_1) && (a_is_n0) && (b_is_n0) && (r || s || (!(|expo_2 )))  ? 1'b1 : 1'b0)  :
+                    (rnd==2'b10) ? ((!sign_1) && (a_is_n0) && (b_is_n0) && (r || s )  ? 1'b1 : 1'b0)  :
+                    (rnd==2'b01) ? (sign_1    && (a_is_n0) && (b_is_n0) && (r || s )  ? 1'b1 : 1'b0)  :
+                    // (rnd==2'b01) ? (sign_1    && (a_is_n0) && (b_is_n0) && (r || s || (!(|expo_2 )))  ? 1'b1 : 1'b0)  :
                     1'b0                                     ;
 
 assign inexact_rnd= r||s; 

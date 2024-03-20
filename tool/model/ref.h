@@ -21,12 +21,19 @@
         case 0: \
             fesetround(FE_TOWARDZERO); \
             break; \
-    } \
+    } 
+
+#define arr_excps   \
+    arr[4]=std::fetestexcept(FE_INVALID)  ?1:0; \
+    arr[3]=std::fetestexcept(FE_DIVBYZERO)?1:0; \
+    arr[2]=std::fetestexcept(FE_OVERFLOW) ?1:0; \
+    arr[1]=std::fetestexcept(FE_UNDERFLOW)?1:0; \
+    arr[0]=std::fetestexcept(FE_INEXACT)  ?1:0; 
 
 class Ref{
 public:
     IF if1;  
-    using Ref_Ptr = std::function<void(const FpBase&, const FpBase&, const FpBase&, const int&, FpBase*)>;
+    using Ref_Ptr = std::function<std::array<int,5>(const FpBase&, const FpBase&, const FpBase&, const int&, FpBase*)>;
    
     template <typename T>
     T convert2flt(const FpBase& a){
@@ -50,12 +57,12 @@ public:
         }
         return res;
     }
+    
+    std::array<int,5> add(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
 
-    void add(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
-
-    void mul(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
+    std::array<int,5> mul(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
   
-    void fma(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
+    std::array<int,5> fma(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
 
     void addFunction(const std::string& functionName, Ref_Ptr func) {
         functionTable[functionName] = func;
@@ -69,5 +76,7 @@ public:
         {"fma"            ,std::bind(&Ref::fma, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
         {"defaultfunction",std::bind(&Ref::add, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)}
     };
+
+
 };
 #endif

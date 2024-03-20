@@ -12,6 +12,7 @@ module mul_unpack #(
     output logic [MANT_W - 1 : 0]                   a_mant  ,
     output logic [MANT_W - 1 : 0]                   b_mant  
 );
+
 assign a_sign   = a[SIGN_W + EXPO_W + MANT_W - 1]                   ;
 assign a_expo   = a[EXPO_W + MANT_W - 1 : MANT_W]                   ;
 assign a_mant   = a[MANT_W - 1 : 0]                                 ;

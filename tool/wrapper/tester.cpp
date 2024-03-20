@@ -266,7 +266,7 @@ bool Tester::run(int argc, char **argv){
 //////////////////////////
 // choose two comparision
 //////////////////////////
-using mdltype= std::function<void(const FpBase& , const FpBase& , const FpBase&, const int&, FpBase *)>;
+using mdltype= std::function<std::array<int,5>(const FpBase& , const FpBase& , const FpBase&, const int&, FpBase *)>;
 mdltype checker_1_func;
 mdltype checker_2_func;
 
@@ -274,7 +274,7 @@ mdltype checker_2_func;
 std::unordered_map<std::string,mdltype> modeltable;
 modeltable["ref"]=(ref_func->second);
 modeltable["cmodel"]=(c_func->second);
-modeltable["rtl"]=std::bind(rtl_func,&pipe1,std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4);
+modeltable["rtl"]=std::bind(rtl_func,&pipe1,std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
 
 
 std::string checker_1_str=argc_string(argc,argv,"checker1=");
@@ -302,28 +302,39 @@ if(checker_2 != modeltable.end())
         printf("into default check2:cmodel");
     }
 //info
-if(checker_1_str!="ref")
-    printf("FAIL TO set checker_model_1,default checker_model_1 is ref\n");
-else
+// if(checker_1_str!="ref")
+//     printf("FAIL TO set checker_model_1,default checker_model_1 is ref\n");
+// else
     printf("SUCCESSFULLY set checker_model_1:: %s\n",checker_1_str.c_str());
-if(checker_2_str!="cmodel")
-    printf("FAIL TO set checker_model_2,default checker_model_2 is cmodel\n");
-else
+
+// if(checker_2_str!="cmodel")
+//     printf("FAIL TO set checker_model_2,default checker_model_2 is cmodel\n");
+// else
     printf("SUCCESSFULLY set checker_model_2:: %s\n",checker_2_str.c_str());
+
+//////////////////////////////
+// enable rtl and cmodel_debug
+//////////////////////////////
+bool rtl_c_debug;
+rtl_c_debug=((checker_1_str=="cmodel")&&(checker_2_str=="rtl"))||((checker_1_str=="rtl")&&(checker_2_str=="cmodel"));
 
 ////////////////
 // start test
 ////////////////
     bool fail=0;
+    std::array<int,5>status1;
+    std::array<int,5>status2;
+    std::array<int,5>status1_old={0,0,0,0,0};
+    std::array<int,5>status2_old={0,0,0,0,0};
 
     for(int i=0;i<test_times;i++){
         if(argc_bool(argc,argv,"c_debug")){
-            in_a.sign=0;
-            in_a.expo=0;
-            in_a.mant=0;
+            in_a.sign=1;
+            in_a.expo=155;
+            in_a.mant=3801088;
             in_b.sign=0;
-            in_b.expo=0;
-            in_b.mant=0;
+            in_b.expo=94;
+            in_b.mant=8357760;
             in_c.sign=0;
             in_c.expo=0;
             in_c.mant=0;
@@ -333,25 +344,20 @@ else
             in2_func->second(&in_b);
             in3_func->second(&in_c);
         }
-        checker_1_func(in_a,in_b,in_c,rnd_mode,&out_1);
-        checker_2_func(in_a,in_b,in_c,rnd_mode,&out_2);
-        // printf("in_a:");
-        // in_a.print();
-        // printf("in_b:");
-        // in_b.print();
-        // printf("output one is ---------------\n");
-        // out_1.print();
-        // printf("----------------------------\n");
-        // printf("output two is ---------------\n");  
-        // out_2.print();
-        // printf("----------------------------\n");
-        fail =checker_func->second(out_1,out_2);
+        status1={0,0,0,0,0};
+        status2={0,0,0,0,0};
+        status1=checker_1_func(in_a,in_b,in_c,rnd_mode,&out_1);
+        status2=checker_2_func(in_a,in_b,in_c,rnd_mode,&out_2);
+        fail   =checker_func->second(out_1,out_2,status1,status2);
         if(fail){
-            printf("in_a:");
+            if(rtl_c_debug){
+                checker1.compareVariables(my_cmodel1.VariablesTable,pipe1.VariablesTable);
+            }
+            printf("in_a:\n");
             in_a.print();
-            printf("in_b:");
+            printf("in_b:\n");
             in_b.print();
-            // printf("in_c:");
+            // printf("in_c:\n");
             // in_c.print();
             printf("output one is ---------------\n");
             out_1.print();
@@ -361,6 +367,8 @@ else
             printf("----------------------------\n");
             break;
         }
+        status1_old=status1;
+        status2_old=status2;
     }
     return fail;
 }

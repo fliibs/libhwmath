@@ -7,13 +7,16 @@ module mul_lod#(
 );
 //------internal signals------------------
 logic [INPUT_WIDTH-1:0] z[AWIDTH+1];
-assign z[AWIDTH]=in_detect;
 
+assign z[AWIDTH]=in_detect;
 genvar i;
 generate for (i=0;i<AWIDTH;i++) begin
     assign z[i]        = (|z[i+1][INPUT_WIDTH-1:INPUT_WIDTH-(1<<(i+1))]) ? z[i+1] : {z[i+1][INPUT_WIDTH-(1<<(i+1))-1:0],{(1<<(i+1)){1'b0}}}; 
-    assign zero_nums[i]=!(|z[i]  [INPUT_WIDTH-1:INPUT_WIDTH-(1<<i)]);
 end
 endgenerate
 
+generate for(i=0;i<=AWIDTH;i++) begin
+    assign zero_nums[i]=!(|z[i][INPUT_WIDTH-1:INPUT_WIDTH-(1<<i)]);
+end
+endgenerate
 endmodule

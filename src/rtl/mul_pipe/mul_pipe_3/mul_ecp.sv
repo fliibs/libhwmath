@@ -1,39 +1,35 @@
-module mul_ecp#(
-    parameter  int unsigned SIGN_W =1,
-    parameter  int unsigned EXPO_W = 8,
-    parameter  int unsigned MANT_W = 23
-)(
-    
-    input  logic       a_is_q     , 
-    input  logic       b_is_q     ,
-    input  logic       a_is_nan   ,
-    input  logic       b_is_nan   ,
-    input  logic       r_is_0nan  , 
+module mul_ecp(
+    input  logic       is_inf_nan ,
+    input  logic       r_is_nan   ,
+    input  logic       a_is_n0    ,
+    input  logic       b_is_n0    ,
+    input  logic       a_is_nor   ,
+    input  logic       b_is_nor   ,
+    input  logic       status_nv  ,
     input  logic       overflow   ,
     input  logic       underflow  ,
     input  logic       inexact_rnd,
     input  logic       inexact_sft,
-    output logic [4:0] status   
+    output logic [4:0] status     
 );
 //------internal signals 
-logic a_is_s_nan;
-logic b_is_s_nan;
+logic  inexact   ;
+logic  inexact_of;
 //------output Invalid Operation
-assign a_is_s_nan =a_is_nan&&(!a_is_q);
-assign b_is_s_nan =b_is_nan&&(!b_is_q);
-
-assign status[4]=a_is_nan||b_is_nan||r_is_0nan;
+assign status[4]=status_nv;
 
 //------output Divided by zero
-assign status[3]=0;
+assign status[3]=1'b0;
 
 //------output Overflow
-assign status[2]=overflow;
+assign status[2]=overflow && (!is_inf_nan); 
 
 //------output underflow
-assign status[1]=underflow;
+assign status[1]=underflow && a_is_n0 && b_is_n0;
 
 //------output Inexact
-assign status[0]=inexact_rnd|inexact_sft;
+assign inexact_of= a_is_nor && b_is_nor && overflow;
+assign inexact   = inexact_rnd || inexact_sft;
+assign status[0] = (inexact && !r_is_nan) || inexact_of;
 
 endmodule

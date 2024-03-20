@@ -26,5 +26,4 @@ public:
     void print_cpp_int(const mp::cpp_int& num,const std::string& str);
     void print_array(int* array, int array_length);
 };
-
 #endif

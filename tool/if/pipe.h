@@ -15,7 +15,10 @@ public:
     bool test_rtl       ;
     Pipe(const std::string& executable): model_rtl(executable,bp::std_in < to_sv,bp::std_out > from_sv){
     }
-    FpBase verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode);
+    std::array<int,5> verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode,FpBase* result);
+    void addVariable(const std::string &variableName,mp::cpp_int value);
+    void removeVariable(const std::string &variableName);
+    std::unordered_map<std::string, mp::cpp_int> VariablesTable;
 };
 
 #endif

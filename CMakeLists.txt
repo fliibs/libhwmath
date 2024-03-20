@@ -23,7 +23,7 @@ set (Fp_type fp64 fp32 fp16)
 
 #set test_times 
 if(NOT DEFINED test_times)
-    set(test_times 10000)
+    set(test_times 1000000)
 endif()
 
 set(test_times_arg "test_times=${test_times}")

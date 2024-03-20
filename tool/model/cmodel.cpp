@@ -1,10 +1,14 @@
 #include "cmodel.h"
-void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result)
+std::array<int,5> Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result)
 {
+    VariablesTable.clear();
+    std::array<int,5> arr={0,0,0,0,0}; 
     uint32_t    a_expo        = a.expo;
     uint32_t    b_expo        = b.expo;
     mp::cpp_int a_mant        = a.mant;
     mp::cpp_int b_mant        = b.mant;
+    mp::cpp_int value;
+
     int         res_expo_w    = (*result).expo_w;
     int         res_mant_w    = (*result).mant_w;
     info1.debug_printf("--------------------------------");
@@ -40,12 +44,58 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
     a_is_nan     = (a_expo_is_max)&&(!a_mant_is_0);
     b_is_nan     = (b_expo_is_max)&&(!b_mant_is_0);
 
-    info1.debug_printf("a_is_0 is      %d",static_cast<int>(a_is_0));
-    info1.debug_printf("b_is_0 is      %d",static_cast<int>(a_is_0));
-    info1.debug_printf("a_is_ff is     %d",static_cast<int>(a_is_inf));
-    info1.debug_printf("b_is_ff is     %d",static_cast<int>(b_is_inf));
-    info1.debug_printf("a_is_nan is    %d",static_cast<int>(a_is_nan));
-    info1.debug_printf("b_is_nan is    %d",static_cast<int>(b_is_nan));
+    bool a_is_q;
+    bool b_is_q;
+    a_is_q             = static_cast<bool>(a.mant>>(a.mant_w-1));
+    b_is_q             = static_cast<bool>(b.mant>>(b.mant_w-1));
+
+    bool a_is_s_nan;
+    bool b_is_s_nan;
+    a_is_s_nan      = (!a_is_q) && a_is_nan;
+    b_is_s_nan      = (!b_is_q) && b_is_nan;
+
+    bool r_is_nan;
+    bool in_is_nan;
+    bool is_inf_nan;
+    bool r_is_0nan;
+
+    r_is_0nan       = (a_is_0 & b_is_inf) | (b_is_0 & a_is_inf);
+    in_is_nan       = a_is_nan  || b_is_nan;
+    r_is_nan        = in_is_nan || r_is_0nan;
+    is_inf_nan      = in_is_nan || a_is_inf || b_is_inf;
+    
+    bool  a_is_nor;
+    bool  b_is_nor;
+    a_is_nor        = !a_is_inf && !a_is_0 && !a_is_nan;
+    b_is_nor        = !b_is_inf && !b_is_0 && !b_is_nan;
+
+    bool a_is_n0;
+    bool b_is_n0;
+    a_is_n0=!a_is_0;
+    b_is_n0=!b_is_0;
+
+    bool status_nv=a_is_s_nan || b_is_s_nan || r_is_0nan;
+    bool r_is0nan =r_is_0nan;
+    bool r_isnan  =r_is_nan;
+    echo(a_expo);
+    echo(b_expo);
+    echo(a_mant);
+    echo(b_mant);
+    echo(a_is_n0);
+    echo(b_is_n0);
+    echo(a_is_nan);
+    echo(b_is_nan);
+    echo(a_is_q);
+    echo(b_is_q);
+    echo(r_is0nan);
+    echo(in_is_nan);
+    echo(r_isnan);
+    echo(is_inf_nan);
+    echo(a_is_nor);
+    echo(b_is_nor);
+    echo(status_nv);
+    int rnd=rnd_mode;
+    echo(rnd);
 
     //--------------generate sign
     (*result).sign =  a.sign ^ b.sign;
@@ -91,6 +141,11 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
     info1.debug_printf("mant_1:\n");
     info1.print_cpp_int(mant_1,"b");
 
+    bool sign_1 = (*result).sign;
+    echo(sign_1);
+    echo(expo_1);
+    echo(mant_1);
+
     mant_1_str           = mant_1;
     mant_av_nums         = 1+a.mant_w+b.mant_w;             //
     mant_av_bits         = get_mant_av_bits(mant_av_nums);  //the avail mant bits of mant all set to one; in fp32 * fp32 it's 47 bits all equaling one 
@@ -113,7 +168,8 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
     mp::cpp_int s_bit_rcd;          //record s bits exceeding res_mant_w;
     mp::cpp_int mant_2;
     uint32_t    expo_2;
-
+    bool        underflow  =false;
+    bool        inexact_sft=false;
     uint32_t expo_sign_bit; //resul expo sign bit
     expo_sign_bit = get_expo_sign_bit((*result).expo_w);
     uint32_t expo_exd_max;  //result expo width + 1 all equaling one
@@ -137,6 +193,7 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
         expo_2      = expo_1+1;
         mant_2      = mant_1_str>>1;
         s_bit_rcd   = mant_1_str&0x01;
+        inexact_sft = static_cast<bool>(s_bit_rcd);
     }
     else{
         info1.debug_printf("not into shift right");   
@@ -146,6 +203,7 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
             mant_2   = mant_1;
         }
         else{
+            underflow=true;
             info1.debug_printf("into 0.xxxx and denormalized");
             expo_2   = 0;
             if(con_expo_sign_0 && expo_nums) {
@@ -157,10 +215,19 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
                 mant_2      = mant_1_str>>r_shift;
                 mp::cpp_int b_valid;
                 b_valid     = get_mant_av_bits(r_shift);
-                s_bit_rcd   = (mant_1_str|b_valid);
+                s_bit_rcd   = (mant_1_str&b_valid);
+                inexact_sft = static_cast<bool>(s_bit_rcd);
             }
         }
     }
+    echo(r_shift);
+    echo(l_shift);
+    mp::cpp_int zero_nums_c;
+    echo(zero_nums_c)
+    mp::cpp_int mant_2_l_zn=mant_1;
+    echo(mant_2_l_zn);
+    echo(inexact_sft);
+
 
     //---------------------handling subnormals debug
     info1.debug_printf("expo_sign_bit is %b\n",expo_sign_bit);
@@ -181,6 +248,7 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
     //------output 
     mp::cpp_int mant_3;
     uint32_t    expo_3;
+    bool        inexact_rnd;
     //-----internal 
     mp::cpp_int mant_rnd;
 
@@ -203,10 +271,10 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
     g             = static_cast<bool>((mant_g_bit&mant_2)!=0);
     r             = static_cast<bool>((mant_r_bit&mant_2)!=0);
     s             = static_cast<bool>(s_bit_rcd | (mant_2 & mant_s_mask));
-
+    inexact_rnd   = r || s;
     mant_carry    = (rnd_mode==3)? ((r &&( g || s))? 1 : 0):
-                    (rnd_mode==2)? ((!(*result).sign && (!a_is_0) && (!b_is_0) && (r||s||(expo_2))) ? 1 : 0):
-                    (rnd_mode==1)? (((*result).sign  && (!a_is_0) && (!b_is_0) && (r||s||(expo_2))) ? 1 : 0):
+                    (rnd_mode==2)? ((!(*result).sign && (!a_is_0) && (!b_is_0) && (r||s)) ? 1 : 0):
+                    (rnd_mode==1)? (((*result).sign  && (!a_is_0) && (!b_is_0) && (r||s)) ? 1 : 0):
                     0;
     int rnd_shift = (mant_av_nums-(*result).mant_w-1);
 
@@ -237,17 +305,17 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
     info1.print_cpp_int(int_1_mask,"b");
     info1.debug_printf("res_mant_mask:");
     info1.print_cpp_int(res_mant_mask,"b");
+    echo(inexact_rnd);
+    echo(expo_3);
+    echo(mant_3);
     
     //------------generating output,it seems like inf and nan can't be optimized into the current process.
     info1.debug_printf("---------------------------");
     info1.debug_printf("------into masking---------");
     info1.debug_printf("---------------------------");
     bool overflow;
-    bool r_is_nan;
-    bool is_inf_nan;
     mp::cpp_int mant_unsel;
     mp::cpp_int mant_nan;
-    bool r_is_0nan;
     bool sign_nan;
     bool sign_unsel;
     
@@ -257,16 +325,19 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
     int expo_of;
     expo_of = std::ceil(std::pow(2,(*result).expo_w))-1;
     overflow        = (expo_3>=expo_of)||(expo_2>=expo_of);///!!!!!
-    r_is_nan        = a_is_nan || b_is_nan || (a_is_0&b_is_inf) || (b_is_0&a_is_inf);
-    is_inf_nan      = a_is_nan || b_is_nan || a_is_inf || b_is_inf;
 
     a_mant_nan      = get_nan(a.mant_w,(*result).mant_w,a_mant);
     b_mant_nan      = get_nan(b.mant_w,(*result).mant_w,b_mant);
-    mant_unsel      = (a_expo & a_expo_max) > (b_expo & b_expo_max) ? (a_mant_nan) :(b_mant_nan);
+
+    bool  inher_a;
+    inher_a         = ((a_expo & a_expo_max)+a_is_nan) >= ((b_expo & b_expo_max)+b_is_nan); //don't use add in rtl expand 1 bit
+
+    mant_unsel      = inher_a  ? (a_mant_nan) :(b_mant_nan);
     mant_nan        = r_is_nan ? mant_unsel : 0;
-    r_is_0nan       = (a_is_0 & b_is_inf) | (b_is_0 & a_is_inf);
-    sign_unsel      = (a_expo & a_expo_max) > (b_expo & b_expo_max) ? a.sign : b.sign;
+
+    sign_unsel      = inher_a  ? a.sign : b.sign;
     sign_nan        = r_is_nan ? (r_is_0nan | sign_unsel) : (*result).sign;
+
     if(is_inf_nan){
         (*result).sign = sign_nan;
         (*result).expo = res_expo_max;
@@ -284,13 +355,50 @@ void Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_
             (*result).mant = static_cast<uint64_t>(mant_3);
         }
     }
+    echo(overflow);
+    echo(sign_nan);
+
+    mp::cpp_int mant_4=mant_nan;
+    echo(mant_4);
+
+    bool res_sign = (*result).sign;
+    echo(res_sign);
+    uint32_t res_expo = (*result).expo;
+    echo(res_expo);
+    uint64_t res_mant = (*result).mant;
+    echo(res_mant);
+
+    info1.debug_printf("---------------------------");
+    info1.debug_printf("------into exceptions------");
+    info1.debug_printf("---------------------------");
+
+    arr[4]          = a_is_s_nan || b_is_s_nan || r_is_0nan;
+    arr[3]          = 0;
+    arr[2]          = overflow && (!is_inf_nan);
+    arr[1]          = underflow && (!a_is_0) && (!b_is_0);
+    bool  inexact;
+    inexact         = inexact_rnd || inexact_sft;
+    bool  inexact_of;
+    inexact_of      = a_is_nor && b_is_nor && overflow;
+    arr[0]          = (inexact && !r_is_nan) || inexact_of;
+    std::array<int,5> status;
+    status=arr;
+    echo(status[4]); 
+    echo(status[3]); 
+    echo(status[2]); 
+    echo(status[1]); 
+    echo(status[0]); 
+    return arr;
+
 }
 
-
-void Cmodel::add(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result){
+std::array<int,5> Cmodel::add(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result){
+    std::array<int,5> arr={0,0,0,0,0}; 
     printf("------------------");
     printf("CMODEL::into add\n");
     printf("------------------");
+    return arr;
+    
 }
 
 void Cmodel::addFunction(const std::string& functionName, C_Ptr func) {
@@ -299,4 +407,12 @@ void Cmodel::addFunction(const std::string& functionName, C_Ptr func) {
 
 void Cmodel::removeFunction(const std::string& functionName) {
     functionTable.erase(functionName);
+}
+
+void Cmodel::addVariable(const std::string &variableName,mp::cpp_int value){
+    VariablesTable[variableName]=value;
+}
+
+void Cmodel::removeVariable(const std::string &variableName){
+    VariablesTable.erase(variableName);
 }

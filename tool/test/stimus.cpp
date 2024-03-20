@@ -22,7 +22,6 @@ void Stimus::get_rand_reg(FpBase* res){
 }
 
 void Stimus::get_rand_nan(FpBase* res){
-std::cout<<"into rand_nan"<<std::endl;
     std::random_device rd;
     std::mt19937_64 gen(rd());
 
