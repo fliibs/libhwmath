@@ -29,4 +29,5 @@ end
 endgenerate
 
 assign data_out             = shift_num[0]   ? {data_in_ary[0][WIDTH-2:0],1'b0}:data_in_ary[0];
+
 endmodule  

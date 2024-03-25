@@ -25,7 +25,7 @@ std::array<int,5> Pipe::verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode,FpBa
     mp::cpp_int      value_lint;
 
     while(model_rtl.running()&&std::getline(from_sv,line)){
-        std::cout<<line<<std::endl;
+        // std::cout<<line<<std::endl;
         if(line.compare(0,7,"status=")==0){
             std::string status_str=line.substr(7);
             std::istringstream(status_str) >> status;
@@ -39,7 +39,7 @@ std::array<int,5> Pipe::verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode,FpBa
         //write from RTL to VariableTable
         //
         equalPos = line.find("=");
-        commaPos=line.find(",");
+        commaPos = line.find(",");
 
         if (equalPos!=std::string::npos)
         {
@@ -55,21 +55,13 @@ std::array<int,5> Pipe::verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode,FpBa
 
     }
 
-    // printf("res is %lb\n",res);
-    // printf("res is %lu\n",res);
     (*result).sign  = res >> ((*result).expo_w + (*result).mant_w);
     uint64_t expo_mask;
     uint64_t mant_mask;
     expo_mask = get_mask((*result).expo_w);
     mant_mask = get_mask((*result).mant_w);
-    // printf("expo_mask is %d\n",expo_mask);
-    // printf("mant_mask is %lb\n",mant_mask);
     (*result).expo  = (res >> (*result).mant_w) & expo_mask;
-    // printf("res shift is %lb\n",res >> (*result).mant_w);
     (*result).mant  = res&mant_mask; 
-    // printf("res     is %lb\n",res);
-    // printf("mant_mask is %lb\n",mant_mask);
-    // printf("(*result).mant  is %lb\n",(*result).mant );
     for(int i=0 ; i<5 ; i++){
         arr[i]=status&0x01;
         status=status>>1;

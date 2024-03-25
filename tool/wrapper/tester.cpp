@@ -5,9 +5,9 @@
 #include "../test/stimus.h"
 #include "tester.h"
 #include <fenv.h>
-#include "../model/ref_my.h"
+#include "../model/ref.h"
+#include "../model/cmodel.h"
 #include "../if/if.h"
-#include "../model/cmodel_my.h"
 #include "../test/checker.h"
 #include "../model/rtl_map.h"
 #include "../if/pipe.h"
@@ -81,9 +81,11 @@ bool Tester::run(int argc, char **argv){
 ////////////////
 //set test_times 
 ////////////////
+    
     int test_times;
     test_times = argc_int(argc,argv,"test_times=");
     printf("SUCCESSFULLY SET test_times to %d\n",test_times);
+
 //////////////////////////////////
 //set input types and output types
 //////////////////////////////////
@@ -140,6 +142,7 @@ bool Tester::run(int argc, char **argv){
 ////////////////
     int rnd_mode=0;
     std::string rnd_mode_str="rnd_mode=";
+
 //set rnd_mode
     rnd_mode=argc_int(argc,argv,rnd_mode_str);
     if(rnd_mode ==0)
@@ -150,23 +153,28 @@ bool Tester::run(int argc, char **argv){
         printf("SUCCESSFULLY set rnd_mode::TO_UPWARD\n");
     if(rnd_mode ==3)
         printf("SUCCESSFULLY set rnd_mode::TO_NEAREST\n");
-//set my_ref
-    My_ref my_ref1;
+
+//set ref model
+    ref my_ref1;
     std::string ref_string;
+    int         ref_flag=0;
+
     auto ref_func = my_ref1.functionTable.end();
     for(int i=0;i<argc;i++){
         ref_string = argv[i];
         ref_func   = my_ref1.functionTable.find(ref_string);
         if(ref_func != my_ref1.functionTable.end())
-        {
+        {   
+            ref_flag=1;
             break;
         }
         else{
             ref_func = my_ref1.functionTable.find("mul");
         }
     }
-    //info
-    if(ref_string!="mul")
+
+//info
+    if(!ref_flag)
         printf("FAIL TO set ref_model,default ref_model is mul\n");
     else
         printf("SUCCESSFULLY set ref_model:: %s\n",ref_string.c_str());
@@ -174,40 +182,63 @@ bool Tester::run(int argc, char **argv){
 ////////////////
 //set cmodel
 ////////////////
-    My_cmodel my_cmodel1;
-    //set debug mode
-    if(argc_bool(argc,argv,"c_debug"))
-    {   
-        my_cmodel1.info1.debug=1;
-    }
-    else{
-        my_cmodel1.info1.debug=0;
-    }
-    std::string cmodel_string;
+    cmodel my_cmodel1;
     
-    auto c_func = my_cmodel1.functionTable.end();
+    //set debug mode
+    auto c_info=my_cmodel1.InfoTable.end();
+    std::string info_string;
     for(int i=0;i<argc;i++){
-        cmodel_string = argv[i];
-        c_func = my_cmodel1.functionTable.find(cmodel_string);
-        if(c_func != my_cmodel1.functionTable.end())
+        info_string = argv[i];
+        c_info = my_cmodel1.InfoTable.find(info_string);
+        if(c_info != my_cmodel1.InfoTable.end())
         {
             break;
         }
         else{
-            c_func = my_cmodel1.functionTable.find("mul");
+            c_info = my_cmodel1.InfoTable.find("mul");
         }
     }
 
+    if(argc_bool(argc,argv,"c_debug"))
+    {   
+        c_info->second->debug=1;
+    }
+    else{
+        c_info->second->debug=0;
+    }
+    std::string cmodel_string;
+    
+    //set cmodel and c variables
+    auto c_func = my_cmodel1.functionTable.end();
+    auto vari   = my_cmodel1.VariablesTable.end();
+
+    int  c_flag = 0;
+    for(int i=0;i<argc;i++){
+        cmodel_string = argv[i];
+        c_func = my_cmodel1.functionTable.find(cmodel_string);
+        vari   = my_cmodel1.VariablesTable.find(cmodel_string);
+
+        if((c_func != my_cmodel1.functionTable.end()) && (vari != my_cmodel1.VariablesTable.end()))
+        {
+            c_flag=1;
+            break;
+        }
+        else{
+            c_func = my_cmodel1.functionTable.find("mul");
+            vari   = my_cmodel1.VariablesTable.find("mul");
+        }
+    }
     //info
-    if(cmodel_string!="mul")
+    if(!c_flag)
         printf("FAIL TO set cmodel,default cmodel is mul\n");
     else
         printf("SUCCESSFULLY set cmodel:: %s\n",cmodel_string.c_str());
+
 ////////////////
 //set rtl_model
 ////////////////
-    // std::string simv_executable=SIMV_EXECUTABLE_PATH;
-    std::string simv_executable="/home/liuyunqi/ymyu/libhwmath/build_sv/./simv";
+    std::string simv_executable=SIMV_EXECUTABLE_PATH;
+    // std::string simv_executable="/home/liuyunqi/ymyu/libhwmath/build_sv/./simv";
     std::string quiet   = " -q";
     std::string debug   = " +RTL_DEBUG";
     std::string command;
@@ -217,11 +248,13 @@ bool Tester::run(int argc, char **argv){
         command = simv_executable + quiet;
     
     std::string rtl_model;
+    int         rtl_flag=0;
     for (int i = 0; i < argc; ++i) {
         std::string model_argv = argv[i];
         auto iter = rtl_map.find(model_argv);
         if (iter != rtl_map.end()) {
             rtl_model = iter->second;  // Assign the value to rtl_model
+            rtl_flag  = 1;
             break;
         } else {
             rtl_model = rtl_map["mul"];  // Assign the default value "mul"
@@ -235,7 +268,7 @@ bool Tester::run(int argc, char **argv){
     auto rtl_func=&Pipe::verif_inout;
     
     //info
-    if(rtl_model!=" +MUL")
+    if(!rtl_flag)
         printf("FAIL TO set rtl_model,default rtl_model is mul\n");
     else
         printf("SUCCESSFULLY set rtl_model:: %s\n",rtl_model.c_str());
@@ -284,37 +317,46 @@ std::string checker_2_str=argc_string(argc,argv,"checker2=");
 auto checker_1 = modeltable.find(checker_1_str);
 auto checker_2 = modeltable.find(checker_2_str);
 
+int checker_1_flag = 0;
+int checker_2_flag = 0;
+
 if(checker_1 != modeltable.end())
 {
     checker_1_func = checker_1->second;
+    checker_1_flag = 1;
 }
 else{
     checker_1_func = modeltable["ref"];
-    printf("into default check1:ref");
+    // printf("into default check1:ref");
 }
 
 if(checker_2 != modeltable.end())
     {
         checker_2_func = checker_2->second;
+        checker_2_flag = 1;
+
     }
     else{
         checker_1_func = modeltable["cmodel"];
-        printf("into default check2:cmodel");
+        // printf("into default check2:cmodel");
     }
+
 //info
-// if(checker_1_str!="ref")
-//     printf("FAIL TO set checker_model_1,default checker_model_1 is ref\n");
-// else
+if(checker_1 == modeltable.end())
+    printf("FAIL TO set checker_model_1,default checker_model_1 is ref\n");
+else
     printf("SUCCESSFULLY set checker_model_1:: %s\n",checker_1_str.c_str());
 
-// if(checker_2_str!="cmodel")
-//     printf("FAIL TO set checker_model_2,default checker_model_2 is cmodel\n");
-// else
+if(checker_2 == modeltable.end())
+    printf("FAIL TO set checker_model_2,default checker_model_2 is cmodel\n");
+else
     printf("SUCCESSFULLY set checker_model_2:: %s\n",checker_2_str.c_str());
+
 
 //////////////////////////////
 // enable rtl and cmodel_debug
 //////////////////////////////
+
 bool rtl_c_debug;
 rtl_c_debug=((checker_1_str=="cmodel")&&(checker_2_str=="rtl"))||((checker_1_str=="rtl")&&(checker_2_str=="cmodel"));
 
@@ -351,7 +393,7 @@ rtl_c_debug=((checker_1_str=="cmodel")&&(checker_2_str=="rtl"))||((checker_1_str
         fail   =checker_func->second(out_1,out_2,status1,status2);
         if(fail){
             if(rtl_c_debug){
-                checker1.compareVariables(my_cmodel1.VariablesTable,pipe1.VariablesTable);
+                checker1.compareVariables(*vari->second,pipe1.VariablesTable);
             }
             printf("in_a:\n");
             in_a.print();

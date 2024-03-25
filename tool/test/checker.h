@@ -2,6 +2,7 @@
 #define CHECKER_H
 #include <functional>
 #include <unordered_map>
+#include <map>
 #include <iostream>
 #include "../model/struct.h"
 
@@ -20,8 +21,8 @@ public:
         {"assert", std::bind(&Checker::assert_T, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)},
     };
     //check variables
-    void printVariables(std::unordered_map <std::string, mp::cpp_int> table);
-    void compareVariables(std::unordered_map <std::string, mp::cpp_int> table1,std::unordered_map <std::string, mp::cpp_int> table2);
+    void printVariables(std::map<std::string, mp::cpp_int> table);
+    void compareVariables(std::map <std::string, mp::cpp_int> table1,std::map <std::string, mp::cpp_int> table2);
     
 
 };

@@ -1,5 +1,5 @@
-#include "cmodel.h"
-std::array<int,5> Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result)
+#include "cmodel_mul.h"
+std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result)
 {
     VariablesTable.clear();
     std::array<int,5> arr={0,0,0,0,0}; 
@@ -7,7 +7,6 @@ std::array<int,5> Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,co
     uint32_t    b_expo        = b.expo;
     mp::cpp_int a_mant        = a.mant;
     mp::cpp_int b_mant        = b.mant;
-    mp::cpp_int value;
 
     int         res_expo_w    = (*result).expo_w;
     int         res_mant_w    = (*result).mant_w;
@@ -95,6 +94,9 @@ std::array<int,5> Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,co
     echo(b_is_nor);
     echo(status_nv);
     int rnd=rnd_mode;
+    echo(a_is_s_nan);
+    echo(b_is_s_nan);
+    echo(r_is_0nan);
     echo(rnd);
 
     //--------------generate sign
@@ -390,29 +392,4 @@ std::array<int,5> Cmodel::mul(const FpBase& a,const FpBase& b,const FpBase& c,co
     echo(status[0]); 
     return arr;
 
-}
-
-std::array<int,5> Cmodel::add(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result){
-    std::array<int,5> arr={0,0,0,0,0}; 
-    printf("------------------");
-    printf("CMODEL::into add\n");
-    printf("------------------");
-    return arr;
-    
-}
-
-void Cmodel::addFunction(const std::string& functionName, C_Ptr func) {
-    functionTable[functionName] = func;
-}
-
-void Cmodel::removeFunction(const std::string& functionName) {
-    functionTable.erase(functionName);
-}
-
-void Cmodel::addVariable(const std::string &variableName,mp::cpp_int value){
-    VariablesTable[variableName]=value;
-}
-
-void Cmodel::removeVariable(const std::string &variableName){
-    VariablesTable.erase(variableName);
 }

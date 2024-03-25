@@ -146,7 +146,7 @@ always_ff @(posedge clk) begin
     b_nan_reg     <= b_nan_in     ;
     a_n0_reg      <= a_n0_in      ;
     b_n0_reg      <= b_n0_in      ;
-    r_nan_reg     <= r_0nan_in    ;
+    r_nan_reg     <= r_nan_in    ;
     inf_nan_reg   <= inf_nan_in   ;
     r_0nan_reg    <= r_0nan_in    ;
     rnd_reg       <= rnd_in       ;
@@ -250,8 +250,10 @@ always @(a_sign or a_expo or a_mant or b_sign or b_expo or b_mant) begin
     `echo(mant_1);
     `echo(r_shift);
     `echo(l_shift);
-    `echo(z_nums_uc_comb);
+    `echo(zero_nums_uc);
     `echo(mask_short_comb);
+    `echo(r_nan_out)
+    `echo(r_nan_in)
 end
 `endif
 

@@ -49,7 +49,6 @@ initial begin
     $display("b   is %d",b);
     $display("c   is %d",c);
     $display("rnd is %d",rnd);
-
     @(posedge clk);
     @(posedge clk); 
     $display("res=%d",res);

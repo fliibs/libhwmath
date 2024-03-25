@@ -1,3 +1,4 @@
+`include "macro_defs.sv"
 module mul_b;
 parameter int unsigned EXPO_W = 8;
 parameter int unsigned MANT_W = 23;
@@ -48,10 +49,10 @@ initial begin
     repeat(3) begin
       @(posedge clk);
     end
-    `ifndef REG_1
+    `ifdef REG_1
       @(posedge clk); 
     `endif 
-    `ifndef REG_2
+    `ifdef REG_2
       @(posedge clk);
     `endif 
     $display("res=%d",z);
@@ -60,29 +61,32 @@ initial begin
     $finish;
   end
   else begin
-    repeat(3) begin
-      @(posedge clk);
+    while(1) begin
+      $fscanf(STDIN, "%d %d %d %d", a,b,c,rnd)       ;
+      repeat(3) begin
+        @(posedge clk);
+      end
+      `ifdef REG_1
+        @(posedge clk); 
+      `endif 
+      `ifdef REG_2
+        @(posedge clk);
+      `endif 
+        $display("res=%d",z);
+        $display("status=%d",inh_status);
+        @(posedge clk); 
     end
-    `ifndef REG_1
-      @(posedge clk); 
-    `endif 
-    `ifndef REG_2
-      @(posedge clk);
-    `endif 
-      $display("status=%d",inh_status);
-      $display("res=%d",z);
-      @(posedge clk); 
   end
 end
 
 // initial begin
 //   clk=1'b0;
-//   a[EXPO_W + MANT_W ]=1;
-//   a[EXPO_W + MANT_W -1 : MANT_W]=8'd154;
-//   a[MANT_W -1 : 0]=23'd2536199;
-//   b[EXPO_W + MANT_W ]=1;
-//   b[EXPO_W + MANT_W -1 : MANT_W]=8'd28;
-//   b[MANT_W -1 : 0]=23'd8139365;
+//   a[EXPO_W + MANT_W ]=1'd0;
+//   a[EXPO_W + MANT_W -1 : MANT_W]=8'd0;
+//   a[MANT_W -1 : 0]=23'd0;
+//   b[EXPO_W + MANT_W ]=1'd1;
+//   b[EXPO_W + MANT_W -1 : MANT_W]=8'd25;
+//   b[MANT_W -1 : 0]=23'd4630366;
 //   rnd = 2'b0;
 //   $display("signal time is %t,a   is %d",$time,a);
 //   $display("signal time is %t,b   is %d",$time,b);
@@ -90,10 +94,10 @@ end
 //   repeat(2) begin
 //     @(posedge clk);
 //   end
-//   `ifndef REG_1
-//   @(posedge clk); 
+//   `ifdef REG_1
+//     @(posedge clk); 
 //   `endif 
-//   `ifndef REG_2
+//   `ifdef REG_2
 //   @(posedge clk);
 //   `endif 
 //   @(posedge clk); 
@@ -102,28 +106,28 @@ end
 
 //   @(posedge clk); 
 
-//   a[EXPO_W + MANT_W ]=1;
-//   a[EXPO_W + MANT_W -1 : MANT_W]=8'd132;
-//   a[MANT_W -1 : 0]=23'd536199;
-//   b[EXPO_W + MANT_W ]=1;
-//   b[EXPO_W + MANT_W -1 : MANT_W]=8'd20;
-//   b[MANT_W -1 : 0]=23'd4139365;
-//   $display("-------------------------------------");
-//   $display("signal time is %t,a   is %d",$time,a);
-//   $display("signal time is %t,b   is %d",$time,b);
-//   $display("signal time is %t,rnd is %d",$time,rnd);
-//   repeat(2) begin
-//     @(posedge clk);
-//   end
-//   `ifndef REG_1
-//   @(posedge clk); 
-//   `endif 
-//   `ifndef REG_2
-//   @(posedge clk);
-//   `endif 
-//   @(posedge clk); 
-//   $display("signal time is %t,status=%d",$time,inh_status);
-//   $display("signal time is %t,res=%d",$time,z);
+//   // a[EXPO_W + MANT_W ]=1;
+//   // a[EXPO_W + MANT_W -1 : MANT_W]=8'd132;
+//   // a[MANT_W -1 : 0]=23'd536199;
+//   // b[EXPO_W + MANT_W ]=1;
+//   // b[EXPO_W + MANT_W -1 : MANT_W]=8'd20;
+//   // b[MANT_W -1 : 0]=23'd4139365;
+//   // $display("-------------------------------------");
+//   // $display("signal time is %t,a   is %d",$time,a);
+//   // $display("signal time is %t,b   is %d",$time,b);
+//   // $display("signal time is %t,rnd is %d",$time,rnd);
+//   // repeat(2) begin
+//   //   @(posedge clk);
+//   // end
+//   // `ifndef REG_1
+//   // @(posedge clk); 
+//   // `endif 
+//   // `ifndef REG_2
+//   // @(posedge clk);
+//   // `endif 
+//   // @(posedge clk); 
+//   // $display("signal time is %t,status=%d",$time,inh_status);
+//   // $display("signal time is %t,res=%d",$time,z);
 //   #10 $finish;
 // end
 

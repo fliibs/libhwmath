@@ -4,6 +4,7 @@
 #include <boost/process.hpp>
 #include "../model/struct.h"
 #include "../model/cal.h"
+#include <map>
 namespace bp = boost::process;
 
 class Pipe{
@@ -18,7 +19,7 @@ public:
     std::array<int,5> verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode,FpBase* result);
     void addVariable(const std::string &variableName,mp::cpp_int value);
     void removeVariable(const std::string &variableName);
-    std::unordered_map<std::string, mp::cpp_int> VariablesTable;
+    std::map<std::string, mp::cpp_int> VariablesTable;
 };
 
 #endif

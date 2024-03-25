@@ -2,6 +2,17 @@ cmake_minimum_required(VERSION 3.22)
 
 project(test)
 
+#to compile the rtl files
+execute_process(
+    COMMAND mkdir build_rtl
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+execute_process(
+    COMMAND sh -c "export LIBW_PATH=${CMAKE_CURRENT_SOURCE_DIR}/src/rtl && 	vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 -debug_all -sverilog -l compile.log -f ../src/rtl/tb/filelist.f +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build_rtl
+)
+
 #cmodel and c verification platform
 file(GLOB_RECURSE SRC ${CMAKE_CURRENT_SOURCE_DIR}/tool/*.cpp)
 
@@ -19,21 +30,18 @@ set(Corner_Case 1_ZERO 1_INF ZERO_INF 1_NAN All_REG)
 
 #set fp type
 set (Fp_type fp64 fp32 fp16)
-# set (Fp_type fp64)
 
 #set test_times 
 if(NOT DEFINED test_times)
-    set(test_times 1000000)
+    set(test_times 1000)
 endif()
 
-set(test_times_arg "test_times=${test_times}")
+# set(test_times_arg "test_times=${test_times}")
 
 #message 
 message(${SRC})
 
 message(${SIMV_FILES})
-
-message(${test_times_arg})
 
 
 #set testing 
@@ -97,7 +105,7 @@ function(map_type type)
     set(type_arg ${arg} PARENT_SCOPE)
 endfunction()
 
-function(generate_test fp_mode test_model test_rnd test_corner test_type)
+function(generate_test fp_mode test_model test_rnd test_corner test_type test_time)
     if(test_model STREQUAL rtl)
         set(checker_arg "checker1=cmodel" "checker2=rtl")
     else()
@@ -106,6 +114,7 @@ function(generate_test fp_mode test_model test_rnd test_corner test_type)
     list_to_str("checker_arg")
     set(checker_input ${str_var_out})
 
+    set(test_times_arg "test_times=${${test_time}}")
     #fp type
     foreach(type ${${test_type}})
         map_type(${type})
@@ -122,7 +131,7 @@ function(generate_test fp_mode test_model test_rnd test_corner test_type)
                 set(corner_input ${str_var_out})
 
                 #add tests
-                add_test(NAME ${fp_mode}_${test_model}_${type}_${test_counter} COMMAND out ${checker_input} ${rnd_arg} ${corner_input} ${type_arg} ${test_times_arg} ${fp_mode} "assert")
+                add_test(NAME ${fp_mode}_${test_model}_${type}_${test_counter} COMMAND out ${checker_input} ${rnd_arg} ${corner_input} ${type_arg} ${test_times_arg} ${fp_mode} "assert" )
                 # message(STATUS "${fp_mode}_${test_model}_${type}_${test_counter}")
                 # message(STATUS "${checker_input} ${rnd_arg} ${corner_input} ${type_arg} ${test_times_arg} ${test_model} assert")
                 math(EXPR test_counter "${test_counter} + 1" OUTPUT_FORMAT DECIMAL)
@@ -131,6 +140,7 @@ function(generate_test fp_mode test_model test_rnd test_corner test_type)
     endforeach()
 endfunction()
 
-generate_test("mul" "cmodel" "Rnd_Mode" "Corner_Case" "Fp_type")
+generate_test("mul" "rtl" "Rnd_Mode" "Corner_Case" "Fp_type" "test_times")
+
 include(CTestCustom.cmake)
  

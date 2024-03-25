@@ -48,7 +48,6 @@ logic                               underflow   ;
 logic                               inexact_sft ;
 logic                               inexact_rnd ;
 logic                               bit_s_record;
-logic                               r_rcd       ;
 logic   [EXPO_W + 1  : 0]           expo_2      ;
 logic   [2*MANT_W + 1: 0]           mant_2      ;
 logic   [EXPO_W + 1 : 0]            expo_3      ;
@@ -104,7 +103,7 @@ shifter_r#(
     .data_in  (mant_1),
     .shift_num(r_shift),
     .data_out (mant_2_r)   ,
-    .r_rcd    (r_rcd)
+    .r_rcd    (mant_2_r_rcd)
 );
 
 shifter_l_light#(
@@ -230,6 +229,7 @@ always @(mant_1 or sign_1 or expo_1) begin
         $display("reg_3 triggered");
         $display("-----------------------------------------");
     `endif 
+    `echo(zero_nums_uc);
     `echo(zero_nums_c);
     `echo(mant_2_l_zn);
     `echo(l_shift);
@@ -238,8 +238,12 @@ always @(mant_1 or sign_1 or expo_1) begin
     `echo(inexact_rnd);
     `echo(expo_3);
     `echo(mant_3);
+    
     `echo(overflow);
     `echo(sign_nan);
+    `echo(a_mant);
+    `echo(b_mant);
+    `echo(r_nan);
     `echo(mant_4);
     `echo(res_sign);
     `echo(res_expo);

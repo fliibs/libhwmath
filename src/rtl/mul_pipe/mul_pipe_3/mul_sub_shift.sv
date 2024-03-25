@@ -23,7 +23,7 @@ always_comb begin:subnoral_shift
     expo_2              = {(EXPO_W  +2){1'b0}} ;
     underflow           = 1'b0                 ;
     inexact_sft         = 1'b0                 ;
-    if(mant_1[2*MANT_W + 1] && (!expo_1[ EXPO_W + 1 ])) begin
+    if(mant_1[2*MANT_W + 1] && (!expo_1[EXPO_W + 1])) begin
         `ifndef SYN
         $display("into shift right");
         `endif
@@ -32,7 +32,7 @@ always_comb begin:subnoral_shift
         bit_s_record    = mant_1[0]                    ;
     end
     else begin
-        if((!expo_1[EXPO_W+1]) && (expo_1[EXPO_W : 0] > {4'b0,zero_nums_c}) && (|mant_1)) begin
+        if((!expo_1[EXPO_W + 1]) && (expo_1[EXPO_W : 0] > {4'b0,zero_nums_c}) && (|mant_1)) begin
             `ifndef SYN
             $display("not into shift right");
             `endif
@@ -45,7 +45,7 @@ always_comb begin:subnoral_shift
             `endif
             underflow   = 1'b1                         ;
             expo_2      = 10'b0                        ;
-            if ((!expo_1[EXPO_W+1]) && (|expo_1[EXPO_W : 0]))
+            if ((!expo_1[EXPO_W + 1]) && (|expo_1[EXPO_W : 0]))
                 mant_2      = mant_2_l                 ;
             else 
             begin

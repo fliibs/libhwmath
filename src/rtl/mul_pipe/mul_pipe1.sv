@@ -220,6 +220,9 @@ always @ (a or b or rnd) begin
     `echo(a_is_nor);
     `echo(b_is_nor);
     `echo(status_nv);
+    `echo(u_fixcal.a_is_s_nan);
+    `echo(u_fixcal.b_is_s_nan);
+    `echo(u_fixcal.r_is0nan);
     `echo(rnd);
 end
 `endif

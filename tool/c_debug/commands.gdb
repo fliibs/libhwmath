@@ -1,38 +1,37 @@
 # command.gdb
-set args "c_debug" "checker1=ref" "checker2=cmodel" "rnd_mode=1" "corner_all=reg" "type_all=fp32" "test_times=1" "mul" "assert" 
-b tester.cpp:333
-b tester.cpp:319
+set args  "checker1=cmodel" "checker2=rtl" "rnd_mode=3" "corner1=nan" "corner2=reg" "corner3=reg" "type_all=fp32" "test_times=100" "mul" "assert"
 
 # debug reference model
-b ref.cpp:9
-b ref.cpp:10
-
-#b ref.cpp:41
-#b ref.cpp:50
-#b ref.cpp:59
-#b ref.cpp:62
-#b if.cpp:19
-#b if.cpp:20
-#b if.cpp:21
-#b ref.cpp:65
+b tester.cpp:350
+b tester.cpp:349
+b tester.cpp:319
+b tester.cpp:285
+b tester.cpp:351
 
 # debug cmodel
-b cmodel.cpp:70
-b cmodel.cpp:109
-b cmodel.cpp:163
-b cmodel.cpp:236
-b cmodel.cpp:239
-#b cal.cpp:46
-b cmodel.cpp:267
-b cmodel.cpp:335
+b cmodel.cpp:80
+b cmodel.cpp:98
+b cmodel.cpp:147
+b cmodel.cpp:223
+b cmodel.cpp:308
+b cmodel.cpp:358
+
+
+
+
+# debug pipe 
+b pipe.cpp:42
+b pipe.cpp:41
+b pipe.cpp:44
+
 
 run 
 c
 
-set in_a.sign=0
-set in_a.expo=249
-set in_a.mant=1773952
-set in_b.sign=1
-set in_b.expo=104
-set in_b.mant=524288
+# set in_a.sign=0c
+# set in_a.expo=249
+# set in_a.mant=1773952
+# set in_b.sign=1
+# set in_b.expo=104
+# set in_b.mant=524288
 

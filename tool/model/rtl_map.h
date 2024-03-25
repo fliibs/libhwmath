@@ -7,5 +7,8 @@ std::unordered_map<std::string,std::string> rtl_map{ //first string g++ argv; se
     {"mul"," +MUL"},
     {"add"," +ADD"},
     {"fma"," +FMA"},
+//add handle here
+    {"min"," +MIN"},
+
 };
 #endif
