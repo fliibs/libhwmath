@@ -73,13 +73,31 @@ endfunction()
 #set executable 
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
-add_executable(out ${SRC})
+add_executable(out_rnd_0 ${SRC})
+target_link_libraries(out_rnd_0 Boost::program_options)
+target_compile_definitions(out_rnd_0 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+target_compile_options(out_rnd_0 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=0")
 
-target_link_libraries(out Boost::program_options)
+#rnd_mode=3 towards_nearest 
+add_executable(out_rnd_3 ${SRC})
+target_link_libraries(out_rnd_3 Boost::program_options)
+target_compile_definitions(out_rnd_3 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+target_compile_options(out_rnd_3 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=1")
 
-target_compile_definitions(out PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
-target_compile_options(out PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options")
-target_link_libraries(out ${Boost_PROGRAM_OPTIONS_LIBRARY})
+#rnd_mode=2 towards_positive  
+add_executable(out_rnd_2 ${SRC})
+target_link_libraries(out_rnd_2 Boost::program_options)
+target_compile_definitions(out_rnd_2 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+target_compile_options(out_rnd_2 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=2")
+
+#rnd_mode=1 towards_negative
+add_executable(out_rnd_1 ${SRC})
+target_link_libraries(out_rnd_1 Boost::program_options)
+target_compile_definitions(out_rnd_1 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+target_compile_options(out_rnd_1 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=3")
+
+
+
 function(generate_test untest_model op checker corner type test_time rnd_mode)
     set(store_list )
 
@@ -119,7 +137,18 @@ function(generate_test untest_model op checker corner type test_time rnd_mode)
                 split_string("${type}" " " "store_list" type_list)
                 split_string("${rnd}" " " "store_list" rnd_list)
                 split_string("${corner}" " " "store_list" corner_list)
-                add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                if(rnd STREQUAL "--rnd_mode 1")
+                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_1 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                endif()
+                if(rnd STREQUAL "--rnd_mode 0")
+                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_0 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                endif()
+                if(rnd STREQUAL "--rnd_mode 2")
+                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_2 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                endif()
+                if(rnd STREQUAL "--rnd_mode 3")
+                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_3 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                endif()
                 # message("${fp_mode}_${untest_model}_${op}_${test_counter}")
                 # message("${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}")
                 math(EXPR test_counter "${test_counter} + 1" OUTPUT_FORMAT DECIMAL)    

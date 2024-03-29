@@ -58,7 +58,6 @@ public:
     bool vari_debug;
     int  c_debug;
 
-    
     Tester(int argc, char **argv):
         arg1        (arg_passer1.set_arg(argc, argv)),
         stimu1      (arg1.corner[0])                 ,

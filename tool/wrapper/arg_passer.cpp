@@ -16,6 +16,7 @@ Arg arg_passer::set_arg(int argc,char **argv){
         strcpy(argv_new[i], argv[i]);
         strip_quotes(argv_new[i]);
     }
+
     po::options_description desc("Allowed options");
     desc.add_options()
         ("corner"    , po::value<std::vector<std::string>>()->multitoken(), "set Floating point corner")
@@ -26,9 +27,11 @@ Arg arg_passer::set_arg(int argc,char **argv){
         ("rnd_mode"  , po::value<int>()                                   , "set rnd_mode")
         ("test_times", po::value<int>()                                   , "set test_times")
     ;
+
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
+    
     set_arg_obj(std::vector<std::string>, arg1.corner    , "corner"    , 3, "reg"   );
     set_arg_obj(std::vector<std::string>, arg1.type      , "type"      , 4, "fp32"  );
     set_arg_obj(std::vector<std::string>, arg1.checker   , "checker"   , 3, "cmodel");
