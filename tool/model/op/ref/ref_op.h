@@ -29,6 +29,13 @@
     arr[1]=std::fetestexcept(FE_UNDERFLOW)?1:0; \
     arr[0]=std::fetestexcept(FE_INEXACT)  ?1:0; 
 
+#define half_arr_excps \
+    arr[4]=fetestexcept(FE_INVALID)  ?1:0; \
+    arr[3]=fetestexcept(FE_DIVBYZERO)?1:0; \
+    arr[2]=fetestexcept(FE_OVERFLOW) ?1:0; \
+    arr[1]=fetestexcept(FE_UNDERFLOW)?1:0; \
+    arr[0]=fetestexcept(FE_INEXACT)  ?1:0; 
+
 class ref_op{
 public:
     IF if1;  
@@ -56,19 +63,5 @@ public:
         }
         return res;
     }
-    
-    // std::array<int,5> add(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
-
-    // std::array<int,5> mul(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
-  
-    // std::array<int,5> fma(const FpBase& a, const FpBase& b, const FpBase& c,const int& rnd_mode,FpBase* res);
-
-    // std::unordered_map<std::string, Ref_Ptr> functionTable = {
-    //     {"add"            ,std::bind(&Ref::add, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
-    //     {"mul"            ,std::bind(&Ref::mul, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
-    //     {"fma"            ,std::bind(&Ref::fma, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
-    //     {"defaultfunction",std::bind(&Ref::add, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)}
-    // };
-
 };
 #endif

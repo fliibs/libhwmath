@@ -11,17 +11,54 @@
 
 class cmodel{        
     public:
+        //function pointer
         using C_Ptr = std::function<std::array<int,5>(const FpBase&,const FpBase&,const FpBase&,const int&,FpBase*)>;
 
-        //initialize handle
+        //op
         cmodel_add c_add;
         cmodel_mul c_mul;
         cmodel_fma c_fma;
-        
-        //add handle here
-        //cmodel_min c_min;
 
+        //
+        C_Ptr cmodel_func;
+        std::map<std::string, mp::cpp_int> c_vari_table;
 
+        cmodel(std::string table_index,int c_debug){
+            auto it_func = functionTable.find(table_index);
+            auto it_vari = VariablesTable.find(table_index);
+            auto it_info = InfoTable.find(table_index);
+            if(it_func == functionTable.end()){
+                it_func = functionTable.find("mul");
+                cmodel_func = it_func->second;
+                std::cout <<"Fail to set "<<std::left<<std::setw(20)<<"Cmodel";  
+                std::cout << std::left<<std::setw(20)<<",default set is"<<"mul"<<std::endl;  
+            }
+            else{
+                cmodel_func = it_func->second;
+            }
+
+            if(it_vari == VariablesTable.end()){
+                it_vari = VariablesTable.find("mul");
+                c_vari_table = *it_vari->second;
+                std::cout <<"Fail to set "<<std::left<<std::setw(20)<<"Cmodel_Table";  
+                std::cout << std::left<<std::setw(20)<<",default set is"<<"mul"<<std::endl;  
+            }
+            else{
+                c_vari_table = *it_vari->second;
+            }
+
+            if(it_info == InfoTable.end()){
+                it_info = InfoTable.find("mul");
+                std::cout <<"Fail to set "<<std::left<<std::setw(20)<<"Cmodel_Info";  
+                std::cout << std::left<<std::setw(20)<<",default set is"<<"mul"<<std::endl;  
+            }
+            it_info->second->debug=c_debug;
+        }
+
+        //default
+        cmodel(){}
+
+        //table 
         std::unordered_map<std::string, C_Ptr> functionTable = {
             {"add", std::bind(&cmodel_add::add, &c_add, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
             {"mul", std::bind(&cmodel_mul::mul, &c_mul, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},

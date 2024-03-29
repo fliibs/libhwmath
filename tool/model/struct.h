@@ -15,16 +15,45 @@ struct FpBase{
     uint64_t mant;
     int expo_w;
     int mant_w;
+    FpBase(){}
+    FpBase(std::string fptype){
+        if(fptype=="fp16"){
+            expo_w=5;
+            mant_w=10;
+        }
+        else if(fptype=="fp32"){
+            expo_w=8;
+            mant_w=23;
+        }
+        else if(fptype=="fp64"){
+            expo_w=11;
+            mant_w=52;
+        }
+        else{
+            expo_w=8;
+            mant_w=23;
+            std::cout <<"Fail to set "<<std::left<<std::setw(20)<<"Fptype";  
+            std::cout << std::left<<std::setw(20)<<",default set is"<<"fp32"<<std::endl;     
+        }
+
+    }
     bool operator==(const FpBase& other) const {
         return (sign == other.sign) && (expo == other.expo) && (mant == other.mant);
     }
     void print() const{
         if(expo_w==5 && mant_w==10){
             uint16 bits=(sign<<(expo_w+mant_w)) + (expo<<mant_w) + mant;
-            printf("value      : %12lf\n", *(half*)&bits);
+            std::cout<<"value      :"<<std::setw(12)<<(*(half*)&bits)<<std::endl;
             printf(" - sign    : %12ld\n", sign);
-            printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
-            printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant + (1 << (mant_w)), (half)(mant + (1 << (mant_w))) / (1 << (mant_w)));
+            if(expo==0){            
+                printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo +1 - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
+                printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant, (half)(mant / (1 << (mant_w))));
+
+            }
+            else{
+                printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
+                printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant + (1 << (mant_w)), (half)(mant + (1 << (mant_w))) / (1 << (mant_w)));
+            }
             printf("\n");
         }
 
@@ -33,8 +62,15 @@ struct FpBase{
             uint32_t bits=(sign<<(expo_w+mant_w)) + (expo<<mant_w) + mant;
             printf("value      : %12lf\n", *(float*)&bits);
             printf(" - sign    : %12ld\n", sign);
-            printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
-            printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant + (1 << (mant_w)), (float)(mant + (1 << (mant_w))) / (1 << (mant_w)));
+            if(expo==0){            
+                printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo +1 - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
+                printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant, (float)(mant / (1 << (mant_w))));
+
+            }
+            else{
+                printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
+                printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant + (1 << (mant_w)), (float)(mant + (1 << (mant_w))) / (1 << (mant_w)));
+            }
             printf("\n");
         }
         
@@ -43,8 +79,15 @@ struct FpBase{
             uint64_t bits=(sign<<(expo_w+mant_w)) + (expo<<mant_w) + mant;
             printf("value      : %12lf\n", *(double*)&bits);
             printf(" - sign    : %12ld\n", sign);
-            printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
-            printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant + (1 << (mant_w)), (double)(mant + (1 << (mant_w))) / (1 << (mant_w)));
+            if(expo==0){            
+                printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo +1 - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
+                printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant, (double)(mant / (1 << (mant_w))));
+
+            }
+            else{
+                printf(" - exponent: %12ld,%64lb, 2^(%d)\n", expo, expo, (expo - static_cast<uint32_t>(std::pow(2, expo_w - 1))));
+                printf(" - mantissa: %12ld,%64lb, %lf\n", mant, mant + (1 << (mant_w)), (double)(mant + (1 << (mant_w))) / (1 << (mant_w)));
+            }
             printf("\n");
         }
     }

@@ -13,13 +13,22 @@ public:
     bp::ipstream from_sv;
     std::string line    ;
     bp::child model_rtl ;
-    bool test_rtl       ;
-    Pipe(const std::string& executable): model_rtl(executable,bp::std_in < to_sv,bp::std_out > from_sv){
-    }
-    std::array<int,5> verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode,FpBase* result);
+
+    //table
+    std::map<std::string, mp::cpp_int> VariablesTable;
     void addVariable(const std::string &variableName,mp::cpp_int value);
     void removeVariable(const std::string &variableName);
-    std::map<std::string, mp::cpp_int> VariablesTable;
+    
+    //func
+    std::array<int,5> verif_inout(FpBase a,FpBase b,FpBase c,int rnd_mode,FpBase* result);
+    
+    //
+    Pipe(const std::string& executable): model_rtl(executable,bp::std_in < to_sv,bp::std_out > from_sv){
+    }
+    
+    //default
+    Pipe(){
+    }
 };
 
 #endif
