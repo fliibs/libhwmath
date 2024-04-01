@@ -1,4 +1,5 @@
 #include "cmodel_mul.h"
+#include "../../fp_classify.h"
 std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& c,const int& rnd_mode,FpBase *result)
 {
     VariablesTable.clear();
@@ -16,19 +17,25 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
 
     bool a_expo_is_0;
     bool b_expo_is_0;
-    a_expo_is_0  = static_cast<bool>(a_expo==0);
-    b_expo_is_0  = static_cast<bool>(b_expo==0);
+    // a_expo_is_0  = static_cast<bool>(a_expo==0);
+    // b_expo_is_0  = static_cast<bool>(b_expo==0);
+    a_expo_is_0  = isZeroExpo(a);
+    b_expo_is_0  = isZeroExpo(b);
     
     bool a_expo_is_max;
     bool b_expo_is_max;
-    a_expo_is_max = expo_whe_max(a_expo,a.expo_w);
-    b_expo_is_max = expo_whe_max(b_expo,b.expo_w);
+    // a_expo_is_max = expo_whe_max(a_expo,a.expo_w);
+    // b_expo_is_max = expo_whe_max(b_expo,b.expo_w);
+    a_expo_is_max  = isMaxExpo(a);
+    b_expo_is_max  = isMaxExpo(b);
     
     bool a_mant_is_0;
     bool b_mant_is_0;
     mp::cpp_int zero_cpp=0;
-    a_mant_is_0   = static_cast<bool>(a_mant==zero_cpp);
-    b_mant_is_0   = static_cast<bool>(b_mant==zero_cpp);
+    // a_mant_is_0   = static_cast<bool>(a_mant==zero_cpp);
+    // b_mant_is_0   = static_cast<bool>(b_mant==zero_cpp);
+    a_mant_is_0   = isZeroMant(a);
+    b_mant_is_0   = isZeroMant(b);
 
     bool a_is_0;
     bool b_is_0;
@@ -36,12 +43,54 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
     bool b_is_nan;
     bool a_is_inf;
     bool b_is_inf;
-    a_is_0       = (a_expo_is_0)  &&(a_mant_is_0);
-    b_is_0       = (b_expo_is_0)  &&(b_mant_is_0);
-    a_is_inf     = (a_expo_is_max)&&(a_mant_is_0);
-    b_is_inf     = (b_expo_is_max)&&(b_mant_is_0);
-    a_is_nan     = (a_expo_is_max)&&(!a_mant_is_0);
-    b_is_nan     = (b_expo_is_max)&&(!b_mant_is_0);
+    std::cout << "a_sign is: "<< a.sign << std::endl;
+    std::cout << "a_expo is: "<< a.expo << std::endl;
+    std::cout << "a_mant is: "<< a.mant << std::endl;
+    std::cout << "b_sign is: "<< b.sign << std::endl;
+    std::cout << "b_expo is: "<< b.expo << std::endl;
+    std::cout << "b_mant is: "<< b.mant << std::endl;
+
+    // a_is_0       = (a_expo_is_0)  &&(a_mant_is_0);
+    // b_is_0       = (b_expo_is_0)  &&(b_mant_is_0);
+
+    a_is_0 = isZero(a);
+    b_is_0 = isZero(b);
+    // a_is_0   = isPosZero(a) || isNegZero(a);
+    // b_is_0   = isPosZero(b) || isNegZero(b);
+    // std::cout << "valuea a_is_pos0 is: "<< isPosZero(a) << std::endl;
+    // std::cout << "valuea a_is_neg0 is: "<< isNegZero(a) << std::endl;
+    // std::cout << "valuea b_is_pos0 is: "<< isPosZero(b) << std::endl;
+    // std::cout << "valuea b_is_neg0 is: "<< isNegZero(b) << std::endl;
+    // a_is_inf     = (a_expo_is_max)&&(a_mant_is_0);
+    // b_is_inf     = (b_expo_is_max)&&(b_mant_is_0);
+    bool a_neg_inf;
+    bool a_pos_inf;
+    a_is_inf = isInf(a);
+    // a_neg_inf = isNegInf(a);
+    // a_pos_inf = isPosInf(a);
+    // a_is_inf = a_neg_inf || a_pos_inf;
+
+    bool b_neg_inf;
+    bool b_pos_inf;
+    // b_neg_inf = isNegInf(b);
+    // b_pos_inf = isPosInf(b);
+    // b_is_inf = b_neg_inf || b_pos_inf;
+    b_is_inf = isInf(b);
+
+    std::cout << "valuea aisMaxExpo is: "<< isMaxExpo(a) << std::endl;
+    std::cout << "valuea aisZeroMant is: "<< isZeroMant(a) << std::endl;
+    // std::cout << "valuea a_neg_inf is: "<< a_neg_inf << std::endl;
+    // std::cout << "valuea a_pos_inf is: "<< a_pos_inf << std::endl;
+    std::cout << "valuea a_is_inf is: "<< a_is_inf << std::endl;
+
+    std::cout << "valuea bisMaxExpo is: "<< isMaxExpo(b) << std::endl;
+    std::cout << "valuea bisZeroMant is: "<< isZeroMant(b) << std::endl;
+    // std::cout << "valuea b_neg_inf is: "<< b_neg_inf << std::endl;
+    // std::cout << "valuea b_pos_inf is: "<< b_pos_inf << std::endl;
+    std::cout << "valuea b_is_inf is: "<< b_is_inf << std::endl;
+
+    a_is_nan = isNan(a);
+    b_is_nan = isNan(b);
 
     bool a_is_q;
     bool b_is_q;
@@ -50,8 +99,10 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
 
     bool a_is_s_nan;
     bool b_is_s_nan;
-    a_is_s_nan      = (!a_is_q) && a_is_nan;
-    b_is_s_nan      = (!b_is_q) && b_is_nan;
+    // a_is_s_nan      = (!a_is_q) && a_is_nan;
+    // b_is_s_nan      = (!b_is_q) && b_is_nan;
+    a_is_s_nan      = isSNan(a);
+    b_is_s_nan      = isSNan(b);
 
     bool r_is_nan;
     bool in_is_nan;
@@ -59,14 +110,23 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
     bool r_is_0nan;
 
     r_is_0nan       = (a_is_0 & b_is_inf) | (b_is_0 & a_is_inf);
+    std::cout << "a_is_0 is: "<< a_is_0 << std::endl;
+    std::cout << "b_is_0 is: "<< b_is_0 << std::endl;
+    std::cout << "a_is_inf is: "<< a_is_inf << std::endl;
+    std::cout << "b_is_inf is: "<< b_is_inf << std::endl;
+    std::cout << "r_is_0nan is: "<< r_is_0nan << std::endl;
     in_is_nan       = a_is_nan  || b_is_nan;
     r_is_nan        = in_is_nan || r_is_0nan;
     is_inf_nan      = in_is_nan || a_is_inf || b_is_inf;
     
     bool  a_is_nor;
     bool  b_is_nor;
-    a_is_nor        = !a_is_inf && !a_is_0 && !a_is_nan;
-    b_is_nor        = !b_is_inf && !b_is_0 && !b_is_nan;
+    // a_is_nor        = !a_is_inf && !a_is_0 && !a_is_nan;
+    // b_is_nor        = !b_is_inf && !b_is_0 && !b_is_nan;
+    // a_is_nor = !isInf(a) && !isZero(a) && !isNan(a);
+    // b_is_nor = !isInf(b) && !isZero(b) && !isNan(b);
+    a_is_nor = isNor(a);
+    b_is_nor = isNor(b);
 
     bool a_is_n0;
     bool b_is_n0;
@@ -382,7 +442,16 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
     inexact         = inexact_rnd || inexact_sft;
     bool  inexact_of;
     inexact_of      = a_is_nor && b_is_nor && overflow;
+
+    std::cout << "a_is_nor is: "<< a_is_nor << std::endl;
+    std::cout << "b_is_nor is: "<< b_is_nor << std::endl;
+    std::cout << "ov: "<< overflow << std::endl;
+    std::cout << "inexact_of is: "<< inexact_of << std::endl;
+
     arr[0]          = (inexact && !r_is_nan) || inexact_of;
+    std::cout << "inexact: "<< inexact << std::endl;
+    std::cout << "r_is_nan is: "<< r_is_nan << std::endl;
+
     std::array<int,5> status;
     status=arr;
     echo(status[4]); 
@@ -390,6 +459,12 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
     echo(status[2]); 
     echo(status[1]); 
     echo(status[0]); 
+
+    std::cout << "status[4] is: "<< status[4] << std::endl;
+    std::cout << "status[3] is: "<< status[3] << std::endl;
+    std::cout << "status[2] is: "<< status[2] << std::endl;
+    std::cout << "status[1] is: "<< status[1] << std::endl;
+    std::cout << "status[0] is: "<< status[0] << std::endl;
     return arr;
 
 }

@@ -1,19 +1,19 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(test)
-cmake_policy(SET CMP0140 NEW)
-cmake_policy(SET CMP0144 NEW)
+# cmake_policy(SET CMP0140 NEW)
+# cmake_policy(SET CMP0144 NEW)
 
 # to compile the rtl files
-# execute_process(
-#     COMMAND mkdir build_rtl
-#     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-# )
+execute_process(
+    COMMAND mkdir build_rtl
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-# execute_process(
-#     COMMAND sh -c "export LIBW_PATH=${CMAKE_CURRENT_SOURCE_DIR}/src/rtl && 	vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 -debug_all -sverilog -l compile.log -f ../src/rtl/tb/filelist.f +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8"
-#     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build_rtl
-# )
+execute_process(
+    COMMAND sh -c "export LIBW_PATH=${CMAKE_CURRENT_SOURCE_DIR}/src/rtl && 	vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 -debug_all -sverilog -l compile.log -f ../src/rtl/tb/filelist.f +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build_rtl
+)
 
 #cmodel and c verification platform
 file(GLOB_RECURSE SRC ${CMAKE_CURRENT_SOURCE_DIR}/tool/*.cpp)
@@ -78,23 +78,23 @@ target_link_libraries(out_rnd_0 Boost::program_options)
 target_compile_definitions(out_rnd_0 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
 target_compile_options(out_rnd_0 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=0")
 
-#rnd_mode=3 towards_nearest 
-add_executable(out_rnd_3 ${SRC})
-target_link_libraries(out_rnd_3 Boost::program_options)
-target_compile_definitions(out_rnd_3 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
-target_compile_options(out_rnd_3 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=1")
+# #rnd_mode=3 towards_nearest 
+# add_executable(out_rnd_3 ${SRC})
+# target_link_libraries(out_rnd_3 Boost::program_options)
+# target_compile_definitions(out_rnd_3 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+# target_compile_options(out_rnd_3 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=1")
 
-#rnd_mode=2 towards_positive  
-add_executable(out_rnd_2 ${SRC})
-target_link_libraries(out_rnd_2 Boost::program_options)
-target_compile_definitions(out_rnd_2 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
-target_compile_options(out_rnd_2 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=2")
+# #rnd_mode=2 towards_positive  
+# add_executable(out_rnd_2 ${SRC})
+# target_link_libraries(out_rnd_2 Boost::program_options)
+# target_compile_definitions(out_rnd_2 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+# target_compile_options(out_rnd_2 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=2")
 
-#rnd_mode=1 towards_negative
-add_executable(out_rnd_1 ${SRC})
-target_link_libraries(out_rnd_1 Boost::program_options)
-target_compile_definitions(out_rnd_1 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
-target_compile_options(out_rnd_1 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=3")
+# #rnd_mode=1 towards_negative
+# add_executable(out_rnd_1 ${SRC})
+# target_link_libraries(out_rnd_1 Boost::program_options)
+# target_compile_definitions(out_rnd_1 PRIVATE SIMV_EXECUTABLE_PATH="${SIMV_FILES}")
+# target_compile_options(out_rnd_1 PRIVATE "-g" "-DHALF_ERRHANDLING_FENV=1" "-lboost_program_options" "-DHALF_ROUND_STYLE=3")
 
 
 
@@ -137,18 +137,18 @@ function(generate_test untest_model op checker corner type test_time rnd_mode)
                 split_string("${type}" " " "store_list" type_list)
                 split_string("${rnd}" " " "store_list" rnd_list)
                 split_string("${corner}" " " "store_list" corner_list)
-                if(rnd STREQUAL "--rnd_mode 1")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_1 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
-                if(rnd STREQUAL "--rnd_mode 0")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_0 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
-                if(rnd STREQUAL "--rnd_mode 2")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_2 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
-                if(rnd STREQUAL "--rnd_mode 3")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_3 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
+                # if(rnd STREQUAL "--rnd_mode 1")
+                    add_test(NAME ${fp_mode}_${out_rnd_0}_${op}_${test_counter} COMMAND  out_rnd_0 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                # endif()
+                # if(rnd STREQUAL "--rnd_mode 0")
+                #     add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_0 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                # endif()
+                # if(rnd STREQUAL "--rnd_mode 2")
+                #     add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_2 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                # endif()
+                # if(rnd STREQUAL "--rnd_mode 3")
+                #     add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_3 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
+                # endif()
                 # message("${fp_mode}_${untest_model}_${op}_${test_counter}")
                 # message("${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}")
                 math(EXPR test_counter "${test_counter} + 1" OUTPUT_FORMAT DECIMAL)    
