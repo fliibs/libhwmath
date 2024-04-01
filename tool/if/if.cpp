@@ -20,7 +20,6 @@ double IF::Fp64toDouble(const FpBase& FP_num){
     bits |= FP_num.mant;   
     double res;     
     memcpy(&res, &bits, sizeof(double));
-    std::cout<<"res:"<<res<<std::endl;
     return res; 
 }
 

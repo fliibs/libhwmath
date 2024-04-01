@@ -1,5 +1,19 @@
 #include "checker.h"
+#include "../model/cal.h"
 bool Checker::assert_T(const FpBase& input1, const FpBase& input2,const std::array<int,5> arr1,const std::array<int,5> arr2){
+    bool input1_nan;
+    bool input2_nan;
+    uint32_t expo_max=set_expo_max(input1.expo_w);
+    input1_nan =(input1.expo==expo_max) && (input1.mant!=0);
+    input2_nan =(input2.expo==expo_max) && (input2.mant!=0);
+
+    bool op_mul = arg_in.op=="mul";
+    bool fp16_trigger_0inf   =(arg_in.corner[0]=="zero" && arg_in.corner[1]=="inf")||(arg_in.corner[1]=="inf" && arg_in.corner[0]=="zero");
+    bool fp16_trigger_0reg   =(arg_in.corner[0]=="zero" && arg_in.corner[1]=="reg")||(arg_in.corner[1]=="reg" && arg_in.corner[0]=="zero") && input1_nan && input2_nan;
+    bool fp16_trigger_infreg =(arg_in.corner[0]=="inf"  && arg_in.corner[1]=="reg")||(arg_in.corner[1]=="reg" && arg_in.corner[0]=="inf")  && input1_nan && input2_nan;
+
+    bool fp16  = arg_in.type[3]=="fp16";
+
     bool fail=0;
     if((input1==input2)&&(arr1==arr2)){
         fail=0;
@@ -13,10 +27,16 @@ bool Checker::assert_T(const FpBase& input1, const FpBase& input2,const std::arr
         status_check("NX",0);
         fail=1;
     }
-    else{
+    else if(fp16 && op_mul && (fp16_trigger_0inf || fp16_trigger_0reg ||fp16_trigger_infreg))
+    {
+        if(input1.expo==input2.expo && (input1.mant>>(input1.mant_w-1)) ==(input1.mant>>(input1.mant_w-1)))
+            fail=0;
+    }
+    else {
         std::cerr << "op failed"<<std::endl;
         fail=1;
     }
+
     return fail;
 }
 

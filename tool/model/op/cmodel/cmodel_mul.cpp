@@ -205,7 +205,7 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
             mant_2   = mant_1;
         }
         else{
-            underflow=true;
+            // underflow=true;
             info1.debug_printf("into 0.xxxx and denormalized");
             expo_2   = 0;
             if(con_expo_sign_0 && expo_nums) {
@@ -219,6 +219,7 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
                 b_valid     = get_mant_av_bits(r_shift);
                 s_bit_rcd   = (mant_1_str&b_valid);
                 inexact_sft = static_cast<bool>(s_bit_rcd);
+                // underflow=true;
             }
         }
     }
@@ -311,6 +312,8 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
     echo(expo_3);
     echo(mant_3);
     
+    bool underflow_mask;
+    underflow_mask = r||s;
     //------------generating output,it seems like inf and nan can't be optimized into the current process.
     info1.debug_printf("---------------------------");
     info1.debug_printf("------into masking---------");
@@ -377,7 +380,8 @@ std::array<int,5> cmodel_mul::mul(const FpBase& a,const FpBase& b,const FpBase& 
     arr[4]          = a_is_s_nan || b_is_s_nan || r_is_0nan;
     arr[3]          = 0;
     arr[2]          = overflow && (!is_inf_nan);
-    arr[1]          = underflow && (!a_is_0) && (!b_is_0);
+    // arr[1]          = underflow && (!a_is_0) && (!b_is_0) && underflow_mask;
+    arr[1]          = (!a_is_0)&&(!b_is_0)&&(res_expo==0)&&underflow_mask;
     bool  inexact;
     inexact         = inexact_rnd || inexact_sft;
     bool  inexact_of;

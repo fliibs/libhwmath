@@ -75,7 +75,7 @@ public:
         my_cmodel1  (arg1.op,arg1.debug[0])          ,
         my_rtl1     (arg1.debug[1])                  ,
         //checker
-        checker1    (arg1.checker[0])                ,
+        checker1    (arg1)                           ,
         //debug
         c_debug     (arg1.debug[0])                    
     {

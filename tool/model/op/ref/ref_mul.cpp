@@ -12,7 +12,7 @@ std::array<int,5> ref_mul::mul(const FpBase& a, const FpBase& b,const FpBase& c,
         half res_h;
         res_h = a_h * b_h;
         half_arr_excps;  
-        printf("arr[4] is %d\n",arr[4]);
+        // printf("arr[4] is %d\n",arr[4]);
         *res   = if1.HalftoFp16(res_h);
     }
     else if((*res).expo_w==8){ //fp32

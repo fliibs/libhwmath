@@ -1,5 +1,3 @@
-#ifndef TESTER_IMPL_H
-#define TESTER_IMPL_H
 #include "tester.h"
 bool Tester::run(){
 ////////////////
@@ -11,12 +9,13 @@ bool Tester::run(){
 
     for(int i=0;i<test_times;i++){
         if(c_debug){
+            printf("into c_debug\n");
             in_a.sign=1;
-            in_a.expo=155;
-            in_a.mant=3801088;
+            in_a.expo=11;
+            in_a.mant=369;
             in_b.sign=0;
-            in_b.expo=94;
-            in_b.mant=8357760;
+            in_b.expo=4;
+            in_b.mant=237;
             in_c.sign=0;
             in_c.expo=0;
             in_c.mant=0;
@@ -39,8 +38,10 @@ bool Tester::run(){
             in_a.print();
             printf("in_b:\n");
             in_b.print();
-            // printf("in_c:\n");
-            // in_c.print();
+            if(arg1.op=="fma"){
+                printf("in_c:\n");
+                in_c.print();
+            }
             printf("output one is ---------------\n");
             out_1.print();
             printf("----------------------------\n");
@@ -53,5 +54,3 @@ bool Tester::run(){
     return fail;
 }
 
-
-#endif
