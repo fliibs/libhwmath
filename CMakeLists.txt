@@ -5,15 +5,15 @@ cmake_policy(SET CMP0140 NEW)
 cmake_policy(SET CMP0144 NEW)
 
 # to compile the rtl files
-# execute_process(
-#     COMMAND mkdir build_rtl
-#     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-# )
+execute_process(
+    COMMAND mkdir build_rtl
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-# execute_process(
-#     COMMAND sh -c "export LIBW_PATH=${CMAKE_CURRENT_SOURCE_DIR}/src/rtl && 	vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 -debug_all -sverilog -l compile.log -f ../src/rtl/tb/filelist.f +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8"
-#     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build_rtl
-# )
+execute_process(
+    COMMAND sh -c "export LIBW_PATH=${CMAKE_CURRENT_SOURCE_DIR}/src/rtl && 	vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 -debug_all -sverilog -l compile.log -f ../src/rtl/tb/filelist.f +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build_rtl
+)
 
 #cmodel and c verification platform
 file(GLOB_RECURSE SRC ${CMAKE_CURRENT_SOURCE_DIR}/tool/*.cpp)
