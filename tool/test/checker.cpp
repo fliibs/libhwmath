@@ -36,7 +36,6 @@ bool Checker::assert_T(const FpBase& input1, const FpBase& input2,const std::arr
         std::cerr << "op failed"<<std::endl;
         fail=1;
     }
-
     return fail;
 }
 
