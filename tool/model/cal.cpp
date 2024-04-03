@@ -1,5 +1,6 @@
 #include "cal.h"
 #include "../test/info.h"
+
 //exponent
 uint32_t set_expo_max(int expo_w){
     uint32_t result=0;
