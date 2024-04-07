@@ -80,7 +80,7 @@ int get_zero_nums(mp::cpp_int *mant_in,int mant_av_nums){
     int ary_w       =0; 
     int zero_num_bit=0;
     int pow_expo    =0;
-    double ary_w_dl;
+    // double ary_w_dl;
     for (int i=0 ; i< zero_nums_len;i++){
         pow_expo        = zero_nums_len-1-i;
         ary_w           = std::ceil(std::pow(2,pow_expo));

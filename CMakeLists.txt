@@ -25,8 +25,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 ####input argc relevant
 #set rnd mode
-set(Rnd_Mode "--rnd_mode 1" "--rnd_mode 2"
-"--rnd_mode 3" "--rnd_mode 0")
+set(Rnd_Mode 0 1 2 3)
+set(rnd_arg "--rnd_mode")
  
 #set corner case
 set(Corner_Case "--corner reg" "--corner zero reg"
@@ -46,14 +46,13 @@ set (Checker "--checker assert")
 
 #message 
 # message(${SRC})
-
 # message(${SIMV_FILES})
 
 #set testing 
 enable_testing()
 
 #function to seperate string 
-#cause ctest with add "" for the whole arg,which is unrecognizable for arg passer vector
+#cause ctest will add "" for the whole arg,which is unrecognizable for arg passer vector
 function(split_string input_string delimiter store_list output_list)
     string(FIND "${input_string}" "${delimiter}" delimiter_position)
     if (delimiter_position GREATER -1)
@@ -115,7 +114,7 @@ function(generate_test untest_model op checker corner type test_time rnd_mode)
     split_string("${op_arg}" " " "store_list" op_list)
     split_string("${test_times_arg}" " " "store_list" test_times_list)
 
-#     #fp type
+    #fp type
     foreach(type ${${type}})
         set(test_counter 1)
         if(type STREQUAL "--type fp16")
@@ -135,25 +134,12 @@ function(generate_test untest_model op checker corner type test_time rnd_mode)
             foreach(corner ${${corner}})
                 #add tests
                 split_string("${type}" " " "store_list" type_list)
-                split_string("${rnd}" " " "store_list" rnd_list)
                 split_string("${corner}" " " "store_list" corner_list)
-                if(rnd STREQUAL "--rnd_mode 1")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_1 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
-                if(rnd STREQUAL "--rnd_mode 0")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_0 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
-                if(rnd STREQUAL "--rnd_mode 2")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_2 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
-                if(rnd STREQUAL "--rnd_mode 3")
-                    add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_3 ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}) 
-                endif()
+                add_test(NAME ${fp_mode}_${untest_model}_${op}_${test_counter} COMMAND  out_rnd_${rnd} ${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_arg} ${rnd} ${corner_list} ) 
                 # message("${fp_mode}_${untest_model}_${op}_${test_counter}")
                 # message("${checker_list} ${op_list} ${test_times_list} ${type_list} ${rnd_list} ${corner_list}")
                 math(EXPR test_counter "${test_counter} + 1" OUTPUT_FORMAT DECIMAL)    
             endforeach()
-
         endforeach()
          
     endforeach()

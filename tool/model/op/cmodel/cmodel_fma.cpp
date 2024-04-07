@@ -72,10 +72,11 @@ std::array<int,5> cmodel_fma::fma(const FpBase& a, const FpBase& b, const FpBase
     //-----------can get the leading zero of the higher bits and the lower bits seperately
     //-----------has two leading zero detector for normal and converted ones 
     //-----------the same for csa add result and csa add complement result ,select one according to complement
-
+    LOA_res loa_res1;
+    int     loa_width;
+    loa_width = 1+c.mant_w+2+2+a.mant_w+b.mant_w+1;
+    loa_res1  = fma_loa(csa_add_in1,loa_width);
     
-
-
 
     (*res).sign = a.sign;
     (*res).expo = a.expo;
@@ -351,17 +352,85 @@ mp::cpp_int cmodel_fma::fma_cas_add_cpl(Csa_add_in csa_add_in,int mul_mant_w,int
     return add_mant_cpl;
 }
 
-uint32_t cmodel_fma::fma_loa(Csa_add_in csa_add_in,int add_width){
-    std::vector<int> k(add_width);
+LOA_res cmodel_fma::fma_loa(Csa_add_in csa_add_in,int add_width){
+    std::vector<int> k(add_width); 
     std::vector<int> p(add_width);
-    std::vector<int> g(add_width);
+    std::vector<int> g(add_width); 
     std::vector<int> a(add_width);
 
-    std::vector<int> p_exp(add_width+1);
     std::vector<int> p_cin(add_width+1);
+    std::vector<int> f(add_width);
 
+    BIT_CAL(p,   a_lst ^ b_lst );  
+    BIT_CAL(g,   a_lst & b_lst );
+    BIT_CAL(a, !(a_lst | b_lst));
+
+    for(int i=0; i<add_width; i++){
+        k[i]=p[i+1]&g[i];
+    }
+
+    for(int i=0; i<add_width; i++){
+        if(i==0)
+            p_cin[i] = 0;
+        else
+            p_cin[i] = p[i]&k[i-1] || p[i]&p_cin[i-1];
+    }
+
+    std::vector<int> cin(add_width);
+    for(int i=0;i<add_width;i++){
+        cin[i] = p_cin[i]||g[i];
+    }
     
+    //finding the first 1
+    for(int i=0;i<add_width;i++){
+        if(i==0)
+            f[i] = !a[i];
+        else
+            // f[i] = !(a[i]&!(p_cin[i-1]||g[i-1]));
+            f[i] = !(a[i]&!cin[i-1]);
+
+    }
+    std::vector<int> mask_vec(add_width);
+    for(int i=add_width-1;i>-1; i--){
+        if(i==add_width-1)
+            mask_vec[i] = f[i]                 ;
+        else
+            mask_vec[i] = mask_vec[i+1] || f[i];
+    }
+    mp::cpp_int mask=0;
+    for(int i=add_width-1;i>-1; i--){
+        mask = (mask<<1)+mask_vec[i];
+    }
+    
+    //finding the first 0
+    std::vector<int> f_cpl(add_width);//element is 1 only when it's 0
+    for(int i=0; i<add_width; i++){ 
+        f_cpl[i] = (p[i]&cin[i-1])||(a[i]&&!cin[i-1])||(g[i]&&!cin[i-1]); 
+    }
+    
+    std::vector<int> mask_vec_cpl(add_width);
+    for(int i=add_width-1;i>-1; i--){
+        if(i==add_width-1)
+            mask_vec_cpl[i] = f_cpl[i]                     ;
+        else
+            mask_vec_cpl[i] = mask_vec_cpl[i+1] || f_cpl[i];
+    }
+
+    mp::cpp_int mask_cpl=0;
+    for(int i=add_width-1;i>-1; i--){
+        mask_cpl = (mask_cpl<<1)+mask_vec_cpl[i];
+    }
+
+    uint32_t zero_nums_0    = get_zero_nums(&mask,add_width);
+    uint32_t zero_nums_1_uc = get_zero_nums(&mask_cpl,add_width);
+
+    LOA_res loa_res_1;
+    loa_res_1.zero_nums_0 = zero_nums_0;
+    loa_res_1.zero_nums_1 = zero_nums_1_uc;
+
+    return loa_res_1;
 }
+
 
 //cal
 bool cmodel_fma::cal_shift_out(uint32_t shift_num,mp::cpp_int c_mant_s){

@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <iostream>
 #include "check_op.h"
-
 struct Fp_classify{
     bool a_is_0        ;
     bool b_is_0        ;
@@ -18,7 +17,6 @@ struct Fp_classify{
     bool a_expo_is_0   ;
     bool b_expo_is_0   ;
     bool c_expo_is_0   ;
-
 };
 
 struct Mul_res{
@@ -49,6 +47,31 @@ struct Csa_add_in{
     mp::cpp_int mul_mant_l  ;
 };
 
+struct LOA_res{
+    uint32_t    zero_nums_0;
+    uint32_t    zero_nums_1;
+    mp::cpp_int mask_cpl   ;
+};
+
+#define BIT_CAL(res_vector,cal_eq) {   \
+    std::vector<int> out(add_width);   \
+    mp::cpp_int a_in   ;   \
+    mp::cpp_int b_in   ;   \
+    int a_lst          ;   \  
+    int b_lst          ;   \
+    a_in   = csa_add_in.c_mant_s_l ;    \
+    b_in   = csa_add_in.mul_mant_l ;    \
+    for(int i=0;i<add_width;i++){       \
+        a_lst  = static_cast<int>(a_in & 0x01);    \
+        b_lst  = static_cast<int>(b_in & 0x01);    \
+        out[i] = cal_eq       ;       \
+        std::cout<<out[i]<<std::endl; \
+        a_in   = a_in >> 1    ;   \
+        b_in   = b_in >> 1    ;   \
+    }   \
+    res_vector = out    ;      \   
+}
+
 class cmodel_fma:public checker_op{
 public:
     Fp_classify       fpclass1;
@@ -65,8 +88,9 @@ public:
     mp::cpp_int       fma_csa_add(Csa_add_in csa_add_in,int mul_mant_w,int c_mant_w);
     mp::cpp_int       fma_cas_add_cpl(Csa_add_in csa_add_in,int mul_mant_w,int c_mant_w);
     
-    uint32_t          fma_loa(Csa_add_in csa_add_in,int add_width);
-    
+    LOA_res           fma_loa(Csa_add_in csa_add_in,int add_width);
+    uint32_t          fma_loa_sel(uint32_t zero_nums_1_uc,mp::cpp_int mask_long); //to get the currect loa
+
     //cal used only here
     bool              cal_shift_out(uint32_t shift_num,mp::cpp_int c_mant_s);
     template <typename T>
