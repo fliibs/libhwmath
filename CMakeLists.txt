@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(test)
-cmake_policy(SET CMP0140 NEW)
-cmake_policy(SET CMP0144 NEW)
+# cmake_policy(SET CMP0140 NEW)
+# cmake_policy(SET CMP0144 NEW)
 
 # to compile the rtl files
 execute_process(
@@ -38,7 +38,7 @@ set (Fp_type "--type fp16" "--type fp32" "--type fp64")
 
 #set test_times 
 if(NOT DEFINED test_times)
-    set(test_times 1000)
+    set(test_times 10000)
 endif()
 
 #set checker 
@@ -145,6 +145,7 @@ function(generate_test untest_model op checker corner type test_time rnd_mode)
     endforeach()
 endfunction()
 
-generate_test("cmodel" "mul" "Checker" "Corner_Case" "Fp_type" "test_times" "Rnd_Mode")
+# generate_test("cmodel" "mul" "Checker" "Corner_Case" "Fp_type" "test_times" "Rnd_Mode")
+generate_test("cmodel" "min" "Checker" "Corner_Case" "Fp_type" "test_times" "Rnd_Mode")
 
 include(CTestCustom.cmake)
