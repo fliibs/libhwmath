@@ -8,6 +8,7 @@
 #include "./op/cmodel/cmodel_add.h"
 #include "./op/cmodel/cmodel_fma.h"
 #include "./op/cmodel/cmodel_mul.h"
+#include "./op/cmodel/cmodel_min.h"
 
 class cmodel{        
     public:
@@ -18,7 +19,7 @@ class cmodel{
         cmodel_add c_add;
         cmodel_mul c_mul;
         cmodel_fma c_fma;
-
+        cmodel_min c_min;
         //
         C_Ptr cmodel_func;
         std::map<std::string, mp::cpp_int> c_vari_table;
@@ -64,7 +65,7 @@ class cmodel{
             {"mul", std::bind(&cmodel_mul::mul, &c_mul, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
             {"fma", std::bind(&cmodel_fma::fma, &c_fma, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
             //add handle here
-            // {"min", std::bind(&cmodel_min::min, &c_min, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
+            {"min", std::bind(&cmodel_min::min, &c_min, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5)},
         };
 
         std::unordered_map<std::string, std::map<std::string, mp::cpp_int>*> VariablesTable = {
@@ -72,7 +73,7 @@ class cmodel{
             {"mul",&c_mul.VariablesTable},
             {"fma",&c_fma.VariablesTable},
             //add handle here
-            // {"min",&c_min.VariablesTable},
+            {"min",&c_min.VariablesTable},
         };
 
         std::unordered_map<std::string, Info*> InfoTable ={
@@ -80,7 +81,7 @@ class cmodel{
             {"mul",&c_mul.info1},
             {"fma",&c_fma.info1},
             //add handle here
-            // {"min",&c_min.info1},
+            {"min",&c_min.info1},
         };
 
 };

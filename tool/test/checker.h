@@ -9,8 +9,8 @@
 #define status_check(status_name,num)   \
     if(arr1[num]!=arr2[num])    { \
         std::cout<<status_name<<" check fail"<<std::endl; \
-        printf("in arr1 is %d\n",arr1[num]);    \
-        printf("in arr2 is %d\n",arr2[num]);    \
+        printf("in arr1[%d] is %d\n",num,arr1[num]);    \
+        printf("in arr2[%d] is %d\n",num,arr2[num]);    \
     }
     
 class Checker{

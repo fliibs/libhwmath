@@ -1,0 +1,10 @@
+library                                         Instance        Area       Instance %
+tcbn12ffcllbwp6t19p96cpdlvtssgnp0p72v125c_ccs   33              23.740      0.7
+tcbn12ffcllbwp6t19p96cpdssgnp0p72v125c_ccs      4432            1300.599    99.1
+tcbn12ffcllbwp6t19p96cpdulvtssgnp0p72v125c_ccs  6               1.475       0.1
+
+log_path = sys.argv[1]
+with open(log_path,'r') as f:
+    all_log = f.read()
+ms_log = re.search(r"\s*library\s+Instance\s+Area\s+Instance.*",all_log)
+
