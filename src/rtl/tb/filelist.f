@@ -1,5 +1,7 @@
 
 +incdir+${LIBW_PATH}
+// ${LIBW_PATH}/min_rtl.f
+// ${LIBW_PATH}/../tb/min_tb.sv
 ${LIBW_PATH}/tb/mul_tb.sv
 ${LIBW_PATH}/mul_pipe/mul_pipe1.sv
 ${LIBW_PATH}/mul_pipe/mul_pipe2.sv
@@ -31,4 +33,5 @@ ${LIBW_PATH}/mul_pipe/mul_pipe_3/mul_pack.sv
 
 ${DC_HOME}/dw/sim_ver/DW02_mult.v
 ${DC_HOME}/dw/sim_ver/DW_fp_mult.v
+
 

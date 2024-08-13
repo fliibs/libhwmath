@@ -1,0 +1,74 @@
+
+Warning-[LINX_KRNL] Unsupported Linux kernel
+  Linux kernel '5.15.133.1-microsoft-standard-WSL2' is not supported.
+  Supported versions are 2.4* or 2.6*.
+
+
+Warning-[DBG_FLAG_DEP] Debug Option is being Deprecated
+  The '-fsdb' debug-related option is being deprecated and will no longer be 
+  supported in a future release.
+  Please recompile using the '-debug_access<+options>' switch and incremental 
+  options as required.  Recommended options are '-debug_access' for 
+  post-process debug, '-debug_access+classdbg' for testbench debug, and 
+  '-debug_access+all' for all debug capabilities.  Refer the VCS user guide 
+  for more granular options for debug control under the switch '-debug_access'
+  and refer to '-debug_region' for region control.
+
+Command: vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 \
+-debug_all -sverilog -l compile.log +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8 \
++define+incdir +define+SV -f /home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/min_rtl.f \
+
+*** Using c compiler gcc-4.8 instead of cc ...
+                         Chronologic VCS (TM)
+         Version L-2016.06_Full64 -- Tue Aug 13 20:50:29 2024
+               Copyright (c) 1991-2016 by Synopsys Inc.
+                         ALL RIGHTS RESERVED
+
+This program is proprietary and confidential information of Synopsys Inc.
+and may be used and disclosed only as authorized in a license agreement
+controlling such use and disclosure.
+
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/zero_expo_chk.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/max_mant_chk.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/min_res_gen.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/fp_classify.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/max_expo_chk.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/inf_chk.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/fp_min.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/min_top.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/fp_unpack.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/nan_chk.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/zero_mant_chk.sv'
+Parsing design file '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/zero_chk.sv'
+Top Level Modules:
+       zero_expo_chk
+       max_mant_chk
+       min_top
+TimeScale is 1 ns / 100 ps
+Starting vcs inline pass...
+5 unique modules to generate
+5 modules and 0 UDP read. 
+recompiling package std
+recompiling module zero_expo_chk
+recompiling module max_mant_chk
+recompiling module fp_classify
+recompiling module min_top
+All of 5 modules done
+make[1]: Entering directory '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/csrc' \
+
+rm -f _csrc*.so pre_vcsobj_*.so share_vcsobj_*.so
+if [ -x ../simv ]; then chmod -x ../simv; fi
+g++-4.8  -o ../simv   -Wl,-rpath-link=./ -Wl,-rpath='$ORIGIN'/simv.daidir/ -Wl,-rpath=./simv.daidir/ \
+-Wl,-rpath='$ORIGIN'/simv.daidir//scsim.db.dir  -L/usr/lib/x86_64-linux-gnu -L/lib/x86_64-linux-gnu \
+-Wl,--no-as-needed -Wl,--no-as-needed -rdynamic   amcQwB.o objs/amcQw_d.o  _648149_archive_1.so \
+SIM_l.o       rmapats_mop.o rmapats.o rmar.o  rmar_llvm_0_1.o rmar_llvm_0_0.o    \
+/home/lgzhu/software/vcs2016/linux64/lib/libzerosoft_rt_stubs.so /home/lgzhu/software/vcs2016/linux64/lib/libvirsim.so \
+/home/lgzhu/software/vcs2016/linux64/lib/liberrorinf.so /home/lgzhu/software/vcs2016/linux64/lib/libsnpsmalloc.so \
+/home/lgzhu/software/vcs2016/linux64/lib/libvcsnew.so /home/lgzhu/software/vcs2016/linux64/lib/libsimprofile.so \
+/home/lgzhu/software/vcs2016/linux64/lib/libuclinative.so   -Wl,-whole-archive /home/lgzhu/software/vcs2016/linux64/lib/libvcsucli.so \
+-Wl,-no-whole-archive       _vcs_pli_stub_.o   /home/lgzhu/software/vcs2016/linux64/lib/vcs_save_restore_new.o \
+/home/lgzhu/software/verdi2016/share/PLI/VCS/LINUX64/pli.a -ldl  -lc -lm -lpthread \
+-ldl 
+../simv up to date
+make[1]: Leaving directory '/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/csrc' \
+

@@ -1,0 +1,12 @@
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/zero_expo_chk.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/max_mant_chk.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/min_res_gen.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/fp_classify.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/max_expo_chk.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/inf_chk.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/fp_min.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/min_top.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/fp_unpack.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/nan_chk.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/zero_mant_chk.sv
+/home/lgzhu/dev/min_model_0812/libhwmath0812/src/rtl/min/zero_chk.sv
