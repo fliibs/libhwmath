@@ -4,6 +4,6 @@
 `define REG_3
 // `define SYN
 `ifndef SYN
-    `define echo(h) $display("signal time is %t,h=%d",$time,h);
+    `define echo(h) $display("signal time is %t,h=%b",$time,h);
     // `define echo(h) $display("h=%d",h);
 `endif

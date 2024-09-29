@@ -21,7 +21,7 @@ namespace mp = boost::multiprecision;
 
 class Info {
 public:
-    bool debug;
+    bool debug = true;
     void debug_printf(const char* cmd, ...);
     void print_cpp_int(const mp::cpp_int& num,const std::string& str);
     void print_array(int* array, int array_length);

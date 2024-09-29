@@ -11,7 +11,7 @@ execute_process(
 )
 
 execute_process(
-    COMMAND sh -c "export LIBW_PATH=${CMAKE_CURRENT_SOURCE_DIR}/src/rtl && 	vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 -debug_all -sverilog -l compile.log -f ../src/rtl/tb/filelist.f +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8"
+    COMMAND sh -c "export LIBW_PATH=${CMAKE_CURRENT_SOURCE_DIR}/src/rtl && 	vcs -LDFLAGS -Wl,--no-as-needed +v2k -override_timescale=1ns/100ps -full64 -debug_all -sverilog -l compile.log -f ../src/rtl/tb/filelist.f +define+RTL_DEBUG -fsdb -cc gcc-4.8 -cpp g++-4.8 -kdb -lca"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build_rtl
 )
 
@@ -19,7 +19,7 @@ execute_process(
 file(GLOB_RECURSE SRC ${CMAKE_CURRENT_SOURCE_DIR}/tool/*.cpp)
 
 #rtl model
-file(GLOB_RECURSE SIMV_FILES ${CMAKE_CURRENT_SOURCE_DIR}/simv)
+file(GLOB_RECURSE SIMV_FILES ${CMAKE_CURRENT_SOURCE_DIR}/simv +RTL_DEBUG)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -146,6 +146,7 @@ function(generate_test untest_model op checker corner type test_time rnd_mode)
 endfunction()
 
 # generate_test("cmodel" "mul" "Checker" "Corner_Case" "Fp_type" "test_times" "Rnd_Mode")
-generate_test("cmodel" "min" "Checker" "Corner_Case" "Fp_type" "test_times" "Rnd_Mode")
+generate_test("rtl" "min" "Checker" "Corner_Case" "Fp_type" "test_times" "Rnd_Mode")
+# generate_test("cmodel" "min" "Checker" "Corner_Case" "Fp_type" "test_times" "Rnd_Mode")
 
 include(CTestCustom.cmake)

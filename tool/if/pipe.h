@@ -5,6 +5,7 @@
 #include "../model/struct.h"
 #include "../model/cal.h"
 #include <map>
+#include "../test/info.h"
 namespace bp = boost::process;
 
 class Pipe{
@@ -13,7 +14,7 @@ public:
     bp::ipstream from_sv;
     std::string line    ;
     bp::child model_rtl ;
-
+    Info info1;
     //table
     std::map<std::string, mp::cpp_int> VariablesTable;
     void addVariable(const std::string &variableName,mp::cpp_int value);

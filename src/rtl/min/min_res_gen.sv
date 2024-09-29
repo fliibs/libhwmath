@@ -79,7 +79,34 @@ always_comb begin : compare_logic
 end
 
 assign res = in_equal ? ina : (a_min ? ina : inb);
-assign status = a_is_snan || b_is_snan;
+
+
+assign status[4] = a_is_snan || b_is_snan;
+assign status[3] = 1'b0;
+assign status[2] = 1'b0;
+assign status[1] = 1'b0;
+assign status[0] = 1'b0;
+
+`ifndef SYN
+always @ (ina or inb) begin
+    $display("@%t TIME,in min reg gen",$time);
+    `echo(a_sign);
+    `echo(a_expo);
+    `echo(a_mant);
+
+    `echo(b_sign);
+    `echo(b_expo);
+    `echo(b_mant);
+    
+end
+`endif
+
+
+// initial begin
+//     $display("Time: %0t status = %0f, a_is_snan = %0f,b_is_snan = %0f", $time, status, a_is_snan,b_is_snan);
+// end
+
+
 
 
 endmodule

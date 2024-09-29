@@ -106,8 +106,12 @@ std::array<int,5> cmodel_min::min(const FpBase& a,const FpBase& b,const FpBase& 
     bool a_is_q;
     bool b_is_q;
     a_is_q             = static_cast<bool>(a.mant>>(a.mant_w-1));
+    // a_is_q = static_cast<bool>(a.mant & (1 << (a.mant_w - 1)));
+
     std::cout << "a mant w is:" << a.mant_w<< std::endl;
     std::cout << "a_is_q:" << a_is_q<< std::endl;
+    // b_is_q = static_cast<bool>(b.mant & (1 << (b.mant_w - 1)));
+
     b_is_q             = static_cast<bool>(b.mant>>(b.mant_w-1));
 
     bool a_is_s_nan;

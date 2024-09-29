@@ -4,10 +4,12 @@ module zero_expo_chk #(
     parameter int unsigned MANT_W = 23,
     localparam int unsigned FP_W   = SIGN_W+EXPO_W+MANT_W
 ) (
-    input  logic [FP_W-1 : 0 ]  ind ,
+    input logic                    ind_sign   ,
+    input logic [EXPO_W - 1 : 0]   ind_expo   ,
+    input logic [MANT_W - 1 : 0]   ind_mant   ,
     output logic                res                       
 );
 
-    assign res = !(|ind[MANT_W +: EXPO_W]);
+    assign res = !(|ind_expo);
     
 endmodule

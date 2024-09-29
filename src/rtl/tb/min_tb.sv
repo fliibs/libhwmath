@@ -28,7 +28,7 @@ min_top#(
   .SIGN_W(1         ),
   .EXPO_W(EXPO_W    ),
   .MANT_W(MANT_W    )
-)u_mul_top(
+)u_min_top(
   .clk   (clk       ),
   .ina   (a         ),
   .inb   (b         ),
@@ -42,9 +42,21 @@ always #5 clk= ~clk;
 initial begin
   clk=1'b0;
   if($test$plusargs("RTL_DEBUG")) begin
-    $fscanf(STDIN, "%d %d %d %d", a,b,c,rnd)       ;
+    $fscanf(STDIN, "%f %f %f %f", a,b,c,rnd)       ;
+    $display("@%t TIME,in tb top",$time);
+    `echo(a);
+    `echo(b);
+    
     $display("signal time is %t,a   is %d",$time,a);
+    $display("signal time is %t,a.sign   is %d",$time,a[EXPO_W + MANT_W - 1]);
+    $display("signal time is %t,a.expo   is %d",$time,a[EXPO_W + MANT_W - 1 : MANT_W]);
+    $display("signal time is %t,a.mant   is %d",$time,a[MANT_W - 1 : 0]);
+
     $display("signal time is %t,b   is %d",$time,b);
+    $display("signal time is %t,b.sign   is %d",$time,b[EXPO_W + MANT_W - 1]);
+    $display("signal time is %t,b.expo   is %d",$time,b[EXPO_W + MANT_W - 1 : MANT_W]);
+    $display("signal time is %t,b.mant   is %d",$time,b[MANT_W - 1 : 0]);
+
     $display("signal time is %t,rnd is %d",$time,rnd);
     repeat(3) begin
       @(posedge clk);
@@ -81,5 +93,7 @@ end
 
 initial begin
     $vcdpluson;
+    $dumpfile("waveform.fsdb");   // 指定输出的波形文件名
+    $dumpvars(0, min_tbs); 
 end
 endmodule
